@@ -1,6 +1,14 @@
 # 导入Flask框架和相关模块
 from flask import Flask, jsonify, Response  # Flask核心，jsonify用于返回JSON，Response用于构建响应
 from flask_cors import CORS  # 处理跨域资源共享（CORS），允许前端应用访问后端API
+
+# 【新增】导入SQLAlchemy用于数据库操作
+from flask_sqlalchemy import SQLAlchemy  # type: ignore # SQLAlchemy ORM
+# 【新增】导入操作系统和日期时间模块
+import os
+from datetime import datetime
+
+# 【新增】导入json模块（虽然之前有，但保留以保持代码清晰）
 import json  # Python内置的JSON处理模块
 
 # 创建Flask应用实例，__name__表示当前模块名
@@ -11,35 +19,217 @@ CORS(app)
 # Flask应用配置：确保JSON响应中的中文字符正常显示（默认会被转义为Unicode）
 app.config['JSON_AS_ASCII'] = False
 
+# 【新增】数据库配置开始
+# 获取当前文件所在目录的绝对路径
+basedir = os.path.abspath(os.path.dirname(__file__))
+# 配置SQLite数据库路径（放在项目根目录的instance文件夹中）
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "instance", "app.db")}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 关闭修改跟踪，减少内存开销
+app.config['SECRET_KEY'] = 'your-secret-key-here'  # 用于会话安全，生产环境请使用强密钥
+
+# 【新增】初始化数据库
+db = SQLAlchemy(app)
+
+# 【新增】定义用户模型（对应数据库表）
+class User(db.Model):
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        """将模型对象转换为字典，便于JSON序列化"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+# 【新增】初始化数据库（创建表）
+def init_db():
+    with app.app_context():
+        # 创建instance文件夹（如果不存在）
+        instance_path = os.path.join(basedir, 'instance')
+        if not os.path.exists(instance_path):
+            os.makedirs(instance_path)
+        
+        # 创建所有表
+        db.create_all()
+        
+        # 如果用户表为空，则添加示例数据
+        if User.query.count() == 0:
+            sample_users = [
+                {"name": "张三", "email": "zhangsan@example.com"},
+                {"name": "李四", "email": "lisi@example.com"},
+                {"name": "YWXstrong", "email": "w162675761@qq.com"}
+            ]
+            
+            for user_data in sample_users:
+                user = User(**user_data)
+                db.session.add(user)
+            
+            db.session.commit()
+            print("数据库初始化完成，已添加示例数据")
+# 【新增】数据库配置结束
+
 # 定义根路由，当访问 http://localhost:5000/ 时触发
 @app.route('/')
 def home():
     # 返回JSON格式的欢迎消息，包含服务状态和版本信息
+    # 【修改】更新欢迎消息，提示已连接数据库
     return jsonify({
-        "message": "Flask 后端服务运行正常！",
+        "message": "Flask 后端服务运行正常！已连接SQLite数据库",  # 【修改】添加数据库连接信息
         "status": "success",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "database": "SQLite"  # 【新增】添加数据库类型字段
     })
 
 # 定义用户数据API路由，GET方法获取用户列表
 @app.route('/api/users')
 def get_users():
-    # 模拟用户数据（实际项目通常从数据库获取）
-    users = [
-        {"id": 1, "name": "张三", "email": "zhangsan@example.com"},
-        {"id": 2, "name": "李四", "email": "lisi@example.com"},
-        {"id": 3, "name": "YWXstrong", "email": "w162675761@qq.com"}
-    ]
-    # 将用户列表转换为JSON响应
-    return jsonify(users)
+    # 【修改】从硬编码数据改为从数据库获取
+    try:
+        # 【修改】从数据库获取所有用户，而不是硬编码数据
+        users = User.query.all()
+        # 将用户列表转换为JSON响应
+        return jsonify([user.to_dict() for user in users])  # 【修改】使用to_dict方法
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  # 【新增】错误处理
+
+# 【新增】添加新用户API路由
+@app.route('/api/users/add', methods=['POST'])
+def add_user():
+    try:
+        from flask import request
+        
+        data = request.get_json()
+        if not data or 'name' not in data or 'email' not in data:
+            return jsonify({"error": "缺少必要字段（name, email）"}), 400
+        
+        # 检查邮箱是否已存在
+        if User.query.filter_by(email=data['email']).first():
+            return jsonify({"error": "该邮箱已被使用"}), 409
+        
+        # 创建新用户
+        new_user = User(
+            name=data['name'],
+            email=data['email']
+        )
+        
+        db.session.add(new_user)
+        db.session.commit()
+        
+        return jsonify({
+            "message": "用户添加成功",
+            "user": new_user.to_dict()
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# 【新增】更新用户API路由
+@app.route('/api/users/update/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    try:
+        from flask import request
+        
+        data = request.get_json()
+        user = User.query.get(user_id)
+        
+        if not user:
+            return jsonify({"error": "用户不存在"}), 404
+        
+        # 更新用户信息
+        if 'name' in data:
+            user.name = data['name']
+        if 'email' in data:
+            # 检查邮箱是否已被其他用户使用
+            existing_user = User.query.filter_by(email=data['email']).first()
+            if existing_user and existing_user.id != user_id:
+                return jsonify({"error": "该邮箱已被其他用户使用"}), 409
+            user.email = data['email']
+        
+        user.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({
+            "message": "用户更新成功",
+            "user": user.to_dict()
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# 【新增】删除用户API路由
+@app.route('/api/users/delete/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        user = User.query.get(user_id)
+        
+        if not user:
+            return jsonify({"error": "用户不存在"}), 404
+        
+        db.session.delete(user)
+        db.session.commit()
+        
+        return jsonify({"message": "用户删除成功"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# 【新增】获取单个用户API路由
+@app.route('/api/users/<int:user_id>')
+def get_user(user_id):
+    try:
+        user = User.query.get(user_id)
+        
+        if not user:
+            return jsonify({"error": "用户不存在"}), 404
+        
+        return jsonify(user.to_dict())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # 定义健康检查路由，用于监控服务状态
 @app.route('/api/health')
 def health_check():
-    return jsonify({"status": "healthy", "service": "improved-enigma"})
+    # 【修改】健康检查添加数据库状态信息
+    try:
+        # 测试数据库连接
+        db.session.execute('SELECT 1')
+        db_status = 'connected'
+        user_count = User.query.count()
+    except Exception as e:
+        db_status = f'disconnected: {str(e)}'
+        user_count = 0
+    
+    return jsonify({
+        "status": "healthy",
+        "service": "improved-enigma",
+        "database": db_status,  # 【新增】数据库连接状态
+        "total_users": user_count,  # 【新增】用户总数
+        "timestamp": datetime.utcnow().isoformat()  # 【新增】时间戳
+    })
+
+# 【新增】数据库管理路由（仅开发环境使用）
+@app.route('/api/db/init')
+def init_database():
+    try:
+        init_db()
+        return jsonify({"message": "数据库初始化成功"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # 程序入口点：当直接运行此脚本时启动Flask开发服务器
 if __name__ == '__main__':
+    # 【新增】初始化数据库（仅在第一次运行时创建）
+    init_db()
+    
     # 启动服务器，参数说明：
     # debug=True - 开启调试模式（代码更改自动重启，显示详细错误信息）
     # host='0.0.0.0' - 监听所有网络接口（允许外部访问）
