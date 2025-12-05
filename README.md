@@ -1,4 +1,4 @@
-# <团队协作模型基于Flask+React+SQLite的联合开发>
+# 《团队协作模型基于Flask+React+SQLite的联合开发》
 
 **文档版本**: v1.0  
 **项目版本**: v0.1.0  
