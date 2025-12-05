@@ -18,14 +18,14 @@
 
 /* 应用头部主样式 */
 .App-header {
-  background-color: #282c34;  /* 深色背景 */
+  background-color: #18264b;  /* 深色背景 */
   min-height: 100vh;  /* 至少占满整个视窗高度 */
   display: flex;  /* 使用弹性布局 */
   flex-direction: column;  /* 垂直方向排列 */
   align-items: center;  /* 水平居中 */
   justify-content: center;  /* 垂直居中 */
   font-size: calc(10px + 2vmin);  /* 响应式字体大小 */
-  color: white;  /* 白色文字 */
+  color: rgb(255, 255, 255);  /* 白色文字 */
   padding: 20px;  /* 内边距 */
 }
 
@@ -101,7 +101,7 @@
   margin-right: 15px;  /* 右外边距 */
   border-radius: 50%;  /* 圆形 */
   overflow: hidden;  /* 内容溢出隐藏 */
-  border: 2px solid #61dafb;  /* 蓝色边框 */
+  border: 2px solid #d1ebf1;  /* 蓝色边框 */
 }
 
 /* 用户头像图片样式 */
@@ -149,9 +149,9 @@
 
 /* 链接悬停效果 */
 .links a:hover {
-  background: #21a1f1;  /* 悬停时背景色变深 */
+  background: #1e90d6;  /* 悬停时背景色变深 */
   transform: translateY(-2px);  /* 向上移动2px */
-  box-shadow: 0 5px 15px rgba(33, 161, 241, 0.3);  /* 添加蓝色阴影 */
+  box-shadow: 0 5px 15px rgba(186, 197, 206, 0.3);  /* 添加蓝色阴影 */
 }
 
 /* 响应式设计 - 平板及以下设备 */

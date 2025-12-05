@@ -11,6 +11,7 @@ function App() {
   const [message, setMessage] = useState('');   //储存后端返回的欢迎消息
   const [users, setUsers] = useState([]);       //储存用户列表数据
   const [loading, setLoading] = useState(true); //控制加载状态的布尔值
+ 
 
   // 测试后端连接 usedffect hook; 在组件挂载后执行一次（依赖数组为空[]）
   useEffect(() => {
@@ -34,7 +35,7 @@ function App() {
         setLoading(false);//无论成功失败，都结束加载状态
       }
     };
-
+    
 
     fetchData();//调用异步函数
   }, []);//空依赖数组表示在组件挂载时执行一次
@@ -44,7 +45,7 @@ function App() {
     return (
       <div className="App">
         <header className="App-header">
-          <h1>please 加载中...</h1>
+          <h1>正在努力加载中QAQ.....</h1>
         </header>
       </div>
     );
@@ -53,7 +54,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>newfire Improved Enigma - 全栈应用</h1>
+        <h1> 团队协作模型 </h1>
         <p>{message}</p>{/* 显示后端消息 */}
         
         <h2> 用户列表</h2>
@@ -78,6 +79,8 @@ function App() {
       </header>
     </div>
   );
+  
+
 }
 
 export default App;// 导出组件供其他文件使用
