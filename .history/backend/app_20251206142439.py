@@ -81,28 +81,24 @@ def init_db():
         # 如果数据库已存在，检查是否需要添加 password_hash 列
         if db_exists:
             try:
-                # 使用 PRAGMA 检查列是否存在
-                result = db.session.execute(db.text("PRAGMA table_info(users)"))
-                columns = [row[1] for row in result.fetchall()]  # 获取所有列名
-                
-                if 'password_hash' not in columns:
-                    # 如果列不存在，添加列
-                    print("检测到旧版数据库，正在添加 password_hash 列...")
+                # 尝试查询 password_hash 列，如果不存在会抛出异常
+                db.session.execute(db.text("SELECT password_hash FROM users LIMIT 1"))
+                print("数据库表结构已是最新版本")
+            except Exception as e:
+                # 如果列不存在，尝试添加列
+                print("检测到旧版数据库，正在添加 password_hash 列...")
+                try:
+                    # SQLite 添加列
                     db.session.execute(db.text("ALTER TABLE users ADD COLUMN password_hash VARCHAR(255)"))
                     db.session.commit()
                     print("成功添加 password_hash 列")
-                else:
-                    print("数据库表结构已是最新版本")
-            except Exception as e:
-                # 如果检查失败，尝试删除表重建（开发环境）
-                print(f"检查表结构时出错: {e}")
-                print("尝试重新创建表（会丢失现有数据）...")
-                try:
+                except Exception as alter_error:
+                    # 如果添加列失败（可能列已存在或其他原因），尝试删除表重建
+                    print(f"添加列失败: {alter_error}")
+                    print("尝试重新创建表...")
                     db.drop_all()
                     db.create_all()
                     print("表已重新创建")
-                except Exception as rebuild_error:
-                    print(f"重新创建表失败: {rebuild_error}")
         
         # 检查并更新现有用户（为没有密码的用户设置默认密码）
         try:

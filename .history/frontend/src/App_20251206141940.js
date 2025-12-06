@@ -113,7 +113,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>团队协作模型 </h1>
+        <h1> 团队协作模型 </h1>
         <p>{message}</p>{/* 显示后端消息 */}
         
         {/* 【新增】显示当前登录用户信息 */}

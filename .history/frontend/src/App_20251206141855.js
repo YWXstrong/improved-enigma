@@ -61,38 +61,6 @@ function App() {
     fetchData();//调用异步函数
   }, [isLoggedIn]);//依赖isLoggedIn，登录状态改变时重新获取数据
 
-  // 【新增】处理登录成功
-  const handleLoginSuccess = (user) => {
-    setIsLoggedIn(true);
-    setCurrentUser(user);
-    // 登录成功后获取用户列表
-    fetchUsers();
-  };
-
-  // 【新增】获取用户列表
-  const fetchUsers = async () => {
-    try {
-      const usersResponse = await axios.get('http://localhost:5000/api/users');
-      setUsers(usersResponse.data);
-    } catch (error) {
-      console.error('获取用户列表失败:', error);
-    }
-  };
-
-  // 【新增】处理登出
-  const handleLogout = async () => {
-    try {
-      await axios.post('http://localhost:5000/api/auth/logout', {}, {
-        withCredentials: true
-      });
-      setIsLoggedIn(false);
-      setCurrentUser(null);
-      setUsers([]);
-    } catch (error) {
-      console.error('登出失败:', error);
-    }
-  };
-
   //加载状态渲染
   if (loading) {
     return (
@@ -103,26 +71,12 @@ function App() {
       </div>
     );
   }
-
-  // 【新增】未登录时显示登录/注册界面
-  if (!isLoggedIn) {
-    return <Auth onLoginSuccess={handleLoginSuccess} />;
-  }
-
-//主界面渲染（已登录状态）
+//主界面渲染
   return (
     <div className="App">
       <header className="App-header">
-        <h1>团队协作模型 </h1>
+        <h1> 团队协作模型 </h1>
         <p>{message}</p>{/* 显示后端消息 */}
-        
-        {/* 【新增】显示当前登录用户信息 */}
-        {currentUser && (
-          <div className="current-user">
-            <p>欢迎，<strong>{currentUser.name}</strong> ({currentUser.email})</p>
-            <button onClick={handleLogout} className="logout-btn">登出</button>
-          </div>
-        )}
         
         <h2> 用户列表</h2>
         <div className="users-list">

@@ -73,7 +73,7 @@
   gap: 15px;  /* 子元素间距 */
   max-width: 500px;  /* 最大宽度限制 */
   width: 100%;  /* 宽度占满容器 */
-  margin: 20px 0;  /* 上下边距20px，左对齐 */
+  margin: 20px auto;  /* 上下边距20px，左右自动居中 */
 }
 
 /* 用户卡片样式 */
@@ -232,7 +232,7 @@
 @media (max-width: 768px) {
   .current-user {
     flex-direction: column;
-    text-align: left;
+    text-align: center;
   }
   
   .logout-btn {

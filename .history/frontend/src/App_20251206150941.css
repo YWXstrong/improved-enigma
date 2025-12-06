@@ -232,7 +232,7 @@
 @media (max-width: 768px) {
   .current-user {
     flex-direction: column;
-    text-align: left;
+    text-align: center;
   }
   
   .logout-btn {

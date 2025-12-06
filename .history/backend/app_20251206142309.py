@@ -71,74 +71,45 @@ def init_db():
         if not os.path.exists(instance_path):
             os.makedirs(instance_path)
         
-        # 检查数据库文件是否存在
-        db_path = os.path.join(instance_path, 'app.db')
-        db_exists = os.path.exists(db_path)
-        
-        # 创建所有表
-        db.create_all()
-        
-        # 如果数据库已存在，检查是否需要添加 password_hash 列
-        if db_exists:
-            try:
-                # 使用 PRAGMA 检查列是否存在
-                result = db.session.execute(db.text("PRAGMA table_info(users)"))
-                columns = [row[1] for row in result.fetchall()]  # 获取所有列名
-                
-                if 'password_hash' not in columns:
-                    # 如果列不存在，添加列
-                    print("检测到旧版数据库，正在添加 password_hash 列...")
-                    db.session.execute(db.text("ALTER TABLE users ADD COLUMN password_hash VARCHAR(255)"))
-                    db.session.commit()
-                    print("成功添加 password_hash 列")
-                else:
-                    print("数据库表结构已是最新版本")
-            except Exception as e:
-                # 如果检查失败，尝试删除表重建（开发环境）
-                print(f"检查表结构时出错: {e}")
-                print("尝试重新创建表（会丢失现有数据）...")
-                try:
-                    db.drop_all()
-                    db.create_all()
-                    print("表已重新创建")
-                except Exception as rebuild_error:
-                    print(f"重新创建表失败: {rebuild_error}")
+        # 创建所有表（如果表结构有变化，SQLite 需要手动迁移）
+        try:
+            db.create_all()
+        except Exception as e:
+            print(f"创建表时出错: {e}")
+            # 如果是因为字段不存在，需要手动添加字段
+            # 这里我们尝试重新创建表（开发环境）
+            print("尝试重新创建数据库...")
+            db.drop_all()
+            db.create_all()
         
         # 检查并更新现有用户（为没有密码的用户设置默认密码）
-        try:
-            users_without_password = User.query.filter(
-                (User.password_hash == None) | (User.password_hash == '')
-            ).all()
-            
-            if users_without_password:
-                print(f"发现 {len(users_without_password)} 个用户没有密码，正在设置默认密码...")
-                for user in users_without_password:
-                    user.set_password('123456')  # 设置默认密码
-                db.session.commit()
-                print("已为现有用户设置默认密码：123456")
-        except Exception as e:
-            print(f"检查用户密码时出错（可能是新数据库）: {e}")
+        users_without_password = User.query.filter(
+            (User.password_hash == None) | (User.password_hash == '')
+        ).all()
+        
+        if users_without_password:
+            print(f"发现 {len(users_without_password)} 个用户没有密码，正在设置默认密码...")
+            for user in users_without_password:
+                user.set_password('123456')  # 设置默认密码
+            db.session.commit()
+            print("已为现有用户设置默认密码：123456")
         
         # 如果用户表为空，则添加示例数据（注意：现在需要密码）
-        try:
-            if User.query.count() == 0:
-                sample_users = [
-                    {"name": "张三", "email": "zhangsan@example.com", "password": "123456"},
-                    {"name": "李四", "email": "lisi@example.com", "password": "123456"},
-                    {"name": "YWXstrong", "email": "w162675761@qq.com", "password": "123456"}
-                ]
-                
-                for user_data in sample_users:
-                    password = user_data.pop('password')  # 取出密码
-                    user = User(**user_data)
-                    user.set_password(password)  # 设置加密后的密码
-                    db.session.add(user)
-                
-                db.session.commit()
-                print("数据库初始化完成，已添加示例数据（默认密码：123456）")
-        except Exception as e:
-            print(f"添加示例数据时出错: {e}")
-            db.session.rollback()
+        if User.query.count() == 0:
+            sample_users = [
+                {"name": "张三", "email": "zhangsan@example.com", "password": "123456"},
+                {"name": "李四", "email": "lisi@example.com", "password": "123456"},
+                {"name": "YWXstrong", "email": "w162675761@qq.com", "password": "123456"}
+            ]
+            
+            for user_data in sample_users:
+                password = user_data.pop('password')  # 取出密码
+                user = User(**user_data)
+                user.set_password(password)  # 设置加密后的密码
+                db.session.add(user)
+            
+            db.session.commit()
+            print("数据库初始化完成，已添加示例数据（默认密码：123456）")
 # 【新增】数据库配置结束
 
 # 定义根路由，当访问 http://localhost:5000/ 时触发

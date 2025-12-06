@@ -22,8 +22,8 @@
   min-height: 100vh;  /* 至少占满整个视窗高度 */
   display: flex;  /* 使用弹性布局 */
   flex-direction: column;  /* 垂直方向排列 */
-  align-items: flex-start;  /* 水平左对齐 */
-  justify-content: flex-start;  /* 垂直顶部对齐 */
+  align-items: center;  /* 水平居中 */
+  justify-content: center;  /* 垂直居中 */
   font-size: calc(10px + 2vmin);  /* 响应式字体大小 */
   color: rgb(0, 0, 0);  /* 白色文字 */
   padding: 20px;  /* 内边距 */
@@ -73,7 +73,7 @@
   gap: 15px;  /* 子元素间距 */
   max-width: 500px;  /* 最大宽度限制 */
   width: 100%;  /* 宽度占满容器 */
-  margin: 20px 0;  /* 上下边距20px，左对齐 */
+  margin: 20px auto;  /* 上下边距20px，左右自动居中 */
 }
 
 /* 用户卡片样式 */
@@ -232,7 +232,7 @@
 @media (max-width: 768px) {
   .current-user {
     flex-direction: column;
-    text-align: left;
+    text-align: center;
   }
   
   .logout-btn {

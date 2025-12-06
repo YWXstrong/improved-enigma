@@ -17,8 +17,7 @@ from werkzeug.security import generate_password_hash, check_password_hash  # 用
 # 创建Flask应用实例，__name__表示当前模块名
 app = Flask(__name__)
 # 启用CORS，允许所有域名访问（开发环境配置）
-# supports_credentials=True 允许前端发送 cookies（用于 session 管理）
-CORS(app, supports_credentials=True)
+CORS(app)
 
 # Flask应用配置：确保JSON响应中的中文字符正常显示（默认会被转义为Unicode）
 app.config['JSON_AS_ASCII'] = False
@@ -41,7 +40,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=True)  # 【修改】允许为空，便于数据库迁移
+    password_hash = db.Column(db.String(255), nullable=False)  # 【新增】存储加密后的密码
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -71,74 +70,23 @@ def init_db():
         if not os.path.exists(instance_path):
             os.makedirs(instance_path)
         
-        # 检查数据库文件是否存在
-        db_path = os.path.join(instance_path, 'app.db')
-        db_exists = os.path.exists(db_path)
-        
         # 创建所有表
         db.create_all()
         
-        # 如果数据库已存在，检查是否需要添加 password_hash 列
-        if db_exists:
-            try:
-                # 使用 PRAGMA 检查列是否存在
-                result = db.session.execute(db.text("PRAGMA table_info(users)"))
-                columns = [row[1] for row in result.fetchall()]  # 获取所有列名
-                
-                if 'password_hash' not in columns:
-                    # 如果列不存在，添加列
-                    print("检测到旧版数据库，正在添加 password_hash 列...")
-                    db.session.execute(db.text("ALTER TABLE users ADD COLUMN password_hash VARCHAR(255)"))
-                    db.session.commit()
-                    print("成功添加 password_hash 列")
-                else:
-                    print("数据库表结构已是最新版本")
-            except Exception as e:
-                # 如果检查失败，尝试删除表重建（开发环境）
-                print(f"检查表结构时出错: {e}")
-                print("尝试重新创建表（会丢失现有数据）...")
-                try:
-                    db.drop_all()
-                    db.create_all()
-                    print("表已重新创建")
-                except Exception as rebuild_error:
-                    print(f"重新创建表失败: {rebuild_error}")
-        
-        # 检查并更新现有用户（为没有密码的用户设置默认密码）
-        try:
-            users_without_password = User.query.filter(
-                (User.password_hash == None) | (User.password_hash == '')
-            ).all()
+        # 如果用户表为空，则添加示例数据
+        if User.query.count() == 0:
+            sample_users = [
+                {"name": "张三", "email": "zhangsan@example.com"},
+                {"name": "李四", "email": "lisi@example.com"},
+                {"name": "YWXstrong", "email": "w162675761@qq.com"}
+            ]
             
-            if users_without_password:
-                print(f"发现 {len(users_without_password)} 个用户没有密码，正在设置默认密码...")
-                for user in users_without_password:
-                    user.set_password('123456')  # 设置默认密码
-                db.session.commit()
-                print("已为现有用户设置默认密码：123456")
-        except Exception as e:
-            print(f"检查用户密码时出错（可能是新数据库）: {e}")
-        
-        # 如果用户表为空，则添加示例数据（注意：现在需要密码）
-        try:
-            if User.query.count() == 0:
-                sample_users = [
-                    {"name": "张三", "email": "zhangsan@example.com", "password": "123456"},
-                    {"name": "李四", "email": "lisi@example.com", "password": "123456"},
-                    {"name": "YWXstrong", "email": "w162675761@qq.com", "password": "123456"}
-                ]
-                
-                for user_data in sample_users:
-                    password = user_data.pop('password')  # 取出密码
-                    user = User(**user_data)
-                    user.set_password(password)  # 设置加密后的密码
-                    db.session.add(user)
-                
-                db.session.commit()
-                print("数据库初始化完成，已添加示例数据（默认密码：123456）")
-        except Exception as e:
-            print(f"添加示例数据时出错: {e}")
-            db.session.rollback()
+            for user_data in sample_users:
+                user = User(**user_data)
+                db.session.add(user)
+            
+            db.session.commit()
+            print("数据库初始化完成，已添加示例数据")
 # 【新增】数据库配置结束
 
 # 定义根路由，当访问 http://localhost:5000/ 时触发
@@ -165,123 +113,15 @@ def get_users():
     except Exception as e:
         return jsonify({"error": str(e)}), 500  # 【新增】错误处理
 
-# 【新增】用户注册API路由
-@app.route('/api/auth/register', methods=['POST'])
-def register():
-    """用户注册"""
-    try:
-        data = request.get_json()
-        if not data or 'name' not in data or 'email' not in data or 'password' not in data:
-            return jsonify({"error": "缺少必要字段（name, email, password）"}), 400
-        
-        # 检查邮箱是否已存在
-        if User.query.filter_by(email=data['email']).first():
-            return jsonify({"error": "该邮箱已被使用"}), 409
-        
-        # 创建新用户
-        new_user = User(
-            name=data['name'],
-            email=data['email']
-        )
-        new_user.set_password(data['password'])  # 设置加密后的密码
-        
-        db.session.add(new_user)
-        db.session.commit()
-        
-        # 自动登录（设置会话）
-        session['user_id'] = new_user.id
-        session['user_name'] = new_user.name
-        
-        return jsonify({
-            "message": "注册成功",
-            "user": new_user.to_dict()
-        }), 201
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
-
-# 【新增】用户登录API路由
-@app.route('/api/auth/login', methods=['POST'])
-def login():
-    """用户登录"""
-    try:
-        data = request.get_json()
-        if not data or 'email' not in data or 'password' not in data:
-            return jsonify({"error": "请提供邮箱和密码"}), 400
-        
-        # 查找用户
-        user = User.query.filter_by(email=data['email']).first()
-        
-        # 检查用户是否存在
-        if not user:
-            return jsonify({"error": "邮箱或密码错误"}), 401
-        
-        # 检查用户是否有密码（处理旧数据）
-        if not user.password_hash:
-            # 如果用户没有密码，设置默认密码
-            user.set_password('123456')
-            db.session.commit()
-            return jsonify({
-                "message": "检测到您的账号需要设置密码，已自动设置默认密码：123456，请重新登录",
-                "error": "请使用默认密码 123456 重新登录"
-            }), 400
-        
-        # 验证密码
-        if not user.check_password(data['password']):
-            return jsonify({"error": "邮箱或密码错误"}), 401
-        
-        # 设置会话
-        session['user_id'] = user.id
-        session['user_name'] = user.name
-        
-        return jsonify({
-            "message": "登录成功",
-            "user": user.to_dict()
-        })
-    except Exception as e:
-        import traceback
-        print(f"登录错误: {str(e)}")
-        print(traceback.format_exc())
-        return jsonify({"error": f"登录失败: {str(e)}"}), 500
-
-# 【新增】用户登出API路由
-@app.route('/api/auth/logout', methods=['POST'])
-def logout():
-    """用户登出"""
-    try:
-        session.clear()  # 清除所有会话数据
-        return jsonify({"message": "登出成功"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# 【新增】检查登录状态API路由
-@app.route('/api/auth/me', methods=['GET'])
-def get_current_user():
-    """获取当前登录用户信息"""
-    try:
-        user_id = session.get('user_id')
-        if not user_id:
-            return jsonify({"error": "未登录"}), 401
-        
-        user = User.query.get(user_id)
-        if not user:
-            session.clear()
-            return jsonify({"error": "用户不存在"}), 404
-        
-        return jsonify({
-            "user": user.to_dict(),
-            "is_logged_in": True
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# 【新增】添加新用户API路由（保留原有功能，但需要密码）
+# 【新增】添加新用户API路由
 @app.route('/api/users/add', methods=['POST'])
 def add_user():
     try:
+        from flask import request
+        
         data = request.get_json()
-        if not data or 'name' not in data or 'email' not in data or 'password' not in data:
-            return jsonify({"error": "缺少必要字段（name, email, password）"}), 400
+        if not data or 'name' not in data or 'email' not in data:
+            return jsonify({"error": "缺少必要字段（name, email）"}), 400
         
         # 检查邮箱是否已存在
         if User.query.filter_by(email=data['email']).first():
@@ -292,7 +132,6 @@ def add_user():
             name=data['name'],
             email=data['email']
         )
-        new_user.set_password(data['password'])  # 设置加密后的密码
         
         db.session.add(new_user)
         db.session.commit()
@@ -396,22 +235,6 @@ def init_database():
         init_db()
         return jsonify({"message": "数据库初始化成功"})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# 【新增】重置数据库路由（仅开发环境使用，会删除所有数据）
-@app.route('/api/db/reset', methods=['POST'])
-def reset_database():
-    """重置数据库（删除所有表并重新创建）"""
-    try:
-        with app.app_context():
-            db.drop_all()
-            db.create_all()
-            init_db()
-        return jsonify({"message": "数据库重置成功，所有用户默认密码为：123456"})
-    except Exception as e:
-        import traceback
-        print(f"重置数据库错误: {str(e)}")
-        print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
 # 程序入口点：当直接运行此脚本时启动Flask开发服务器

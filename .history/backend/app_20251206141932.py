@@ -41,7 +41,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=True)  # 【修改】允许为空，便于数据库迁移
+    password_hash = db.Column(db.String(255), nullable=False)  # 【新增】存储加密后的密码
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -71,74 +71,25 @@ def init_db():
         if not os.path.exists(instance_path):
             os.makedirs(instance_path)
         
-        # 检查数据库文件是否存在
-        db_path = os.path.join(instance_path, 'app.db')
-        db_exists = os.path.exists(db_path)
-        
         # 创建所有表
         db.create_all()
         
-        # 如果数据库已存在，检查是否需要添加 password_hash 列
-        if db_exists:
-            try:
-                # 使用 PRAGMA 检查列是否存在
-                result = db.session.execute(db.text("PRAGMA table_info(users)"))
-                columns = [row[1] for row in result.fetchall()]  # 获取所有列名
-                
-                if 'password_hash' not in columns:
-                    # 如果列不存在，添加列
-                    print("检测到旧版数据库，正在添加 password_hash 列...")
-                    db.session.execute(db.text("ALTER TABLE users ADD COLUMN password_hash VARCHAR(255)"))
-                    db.session.commit()
-                    print("成功添加 password_hash 列")
-                else:
-                    print("数据库表结构已是最新版本")
-            except Exception as e:
-                # 如果检查失败，尝试删除表重建（开发环境）
-                print(f"检查表结构时出错: {e}")
-                print("尝试重新创建表（会丢失现有数据）...")
-                try:
-                    db.drop_all()
-                    db.create_all()
-                    print("表已重新创建")
-                except Exception as rebuild_error:
-                    print(f"重新创建表失败: {rebuild_error}")
-        
-        # 检查并更新现有用户（为没有密码的用户设置默认密码）
-        try:
-            users_without_password = User.query.filter(
-                (User.password_hash == None) | (User.password_hash == '')
-            ).all()
-            
-            if users_without_password:
-                print(f"发现 {len(users_without_password)} 个用户没有密码，正在设置默认密码...")
-                for user in users_without_password:
-                    user.set_password('123456')  # 设置默认密码
-                db.session.commit()
-                print("已为现有用户设置默认密码：123456")
-        except Exception as e:
-            print(f"检查用户密码时出错（可能是新数据库）: {e}")
-        
         # 如果用户表为空，则添加示例数据（注意：现在需要密码）
-        try:
-            if User.query.count() == 0:
-                sample_users = [
-                    {"name": "张三", "email": "zhangsan@example.com", "password": "123456"},
-                    {"name": "李四", "email": "lisi@example.com", "password": "123456"},
-                    {"name": "YWXstrong", "email": "w162675761@qq.com", "password": "123456"}
-                ]
-                
-                for user_data in sample_users:
-                    password = user_data.pop('password')  # 取出密码
-                    user = User(**user_data)
-                    user.set_password(password)  # 设置加密后的密码
-                    db.session.add(user)
-                
-                db.session.commit()
-                print("数据库初始化完成，已添加示例数据（默认密码：123456）")
-        except Exception as e:
-            print(f"添加示例数据时出错: {e}")
-            db.session.rollback()
+        if User.query.count() == 0:
+            sample_users = [
+                {"name": "张三", "email": "zhangsan@example.com", "password": "123456"},
+                {"name": "李四", "email": "lisi@example.com", "password": "123456"},
+                {"name": "YWXstrong", "email": "w162675761@qq.com", "password": "123456"}
+            ]
+            
+            for user_data in sample_users:
+                password = user_data.pop('password')  # 取出密码
+                user = User(**user_data)
+                user.set_password(password)  # 设置加密后的密码
+                db.session.add(user)
+            
+            db.session.commit()
+            print("数据库初始化完成，已添加示例数据（默认密码：123456）")
 # 【新增】数据库配置结束
 
 # 定义根路由，当访问 http://localhost:5000/ 时触发
@@ -212,22 +163,8 @@ def login():
         # 查找用户
         user = User.query.filter_by(email=data['email']).first()
         
-        # 检查用户是否存在
-        if not user:
-            return jsonify({"error": "邮箱或密码错误"}), 401
-        
-        # 检查用户是否有密码（处理旧数据）
-        if not user.password_hash:
-            # 如果用户没有密码，设置默认密码
-            user.set_password('123456')
-            db.session.commit()
-            return jsonify({
-                "message": "检测到您的账号需要设置密码，已自动设置默认密码：123456，请重新登录",
-                "error": "请使用默认密码 123456 重新登录"
-            }), 400
-        
-        # 验证密码
-        if not user.check_password(data['password']):
+        # 验证用户和密码
+        if not user or not user.check_password(data['password']):
             return jsonify({"error": "邮箱或密码错误"}), 401
         
         # 设置会话
@@ -239,10 +176,7 @@ def login():
             "user": user.to_dict()
         })
     except Exception as e:
-        import traceback
-        print(f"登录错误: {str(e)}")
-        print(traceback.format_exc())
-        return jsonify({"error": f"登录失败: {str(e)}"}), 500
+        return jsonify({"error": str(e)}), 500
 
 # 【新增】用户登出API路由
 @app.route('/api/auth/logout', methods=['POST'])
@@ -396,22 +330,6 @@ def init_database():
         init_db()
         return jsonify({"message": "数据库初始化成功"})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# 【新增】重置数据库路由（仅开发环境使用，会删除所有数据）
-@app.route('/api/db/reset', methods=['POST'])
-def reset_database():
-    """重置数据库（删除所有表并重新创建）"""
-    try:
-        with app.app_context():
-            db.drop_all()
-            db.create_all()
-            init_db()
-        return jsonify({"message": "数据库重置成功，所有用户默认密码为：123456"})
-    except Exception as e:
-        import traceback
-        print(f"重置数据库错误: {str(e)}")
-        print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
 # 程序入口点：当直接运行此脚本时启动Flask开发服务器
