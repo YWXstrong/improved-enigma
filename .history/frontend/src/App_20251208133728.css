@@ -18,7 +18,13 @@
 
 /* 应用头部主样式 */
 .App-header {
-  background-color: #fdfbfb;  /* 深色背景 */
+  background: linear-gradient(to bottom,
+    rgba(0, 0, 0, 0.3) 33.33%,
+    rgba(253, 251, 251, 0.9) 33.34%,
+    #fdfbfb 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   min-height: 100vh;  /* 至少占满整个视窗高度 */
   display: flex;  /* 使用弹性布局 */
   flex-direction: column;  /* 垂直方向排列 */
@@ -27,6 +33,54 @@
   font-size: calc(10px + 2vmin);  /* 响应式字体大小 */
   color: rgb(0, 0, 0);  /* 白色文字 */
   padding: 20px;  /* 内边距 */
+  position: relative;
+}
+
+/* 【新增】文字框样式 */
+.text-box {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(102, 126, 234, 0.3);
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin: 10px 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.text-box:hover {
+  border-color: rgba(102, 126, 234, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.text-box:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 标题框特殊样式 */
+.title-box {
+  background: rgba(255, 255, 255, 0.95);
+  border: 3px solid rgba(102, 126, 234, 0.5);
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* 消息框样式 */
+.message-box {
+  background: rgba(240, 248, 255, 0.9);
+  border-color: rgba(30, 144, 255, 0.3);
+}
+
+/* 用户信息框样式 */
+.user-info-box {
+  background: rgba(255, 248, 220, 0.9);
+  border-color: rgba(255, 165, 0, 0.3);
 }
 
 /* Logo容器样式 */
@@ -228,298 +282,66 @@
   box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
 }
 
+/* 【新增】背景设置区域 */
+.background-settings {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.background-input {
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  min-width: 200px;
+  transition: border-color 0.3s ease;
+}
+
+.background-input:focus {
+  border-color: #667eea;
+  outline: none;
+}
+
+.background-btn {
+  padding: 8px 16px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.background-btn:hover {
+  background: #5a67d8;
+  transform: translateY(-1px);
+}
+
 /* 响应式设计 - 当前用户区域 */
 @media (max-width: 768px) {
   .current-user {
     flex-direction: column;
     text-align: left;
   }
-  
+
   .logout-btn {
     width: 100%;
   }
-}
-/* 新增：主容器布局 */
-.main-container {
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(135deg, #fcfcff 0%, #666666 100%);
-  position: relative;
-  overflow: hidden;
-}
 
-/* 新增：背景图片容器 */
-.image-section {
-  width: 100%;
-  height: 33vh;
-  min-height: 250px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.image-section img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-bottom: 3px solid #000000;
-}
-
-.image-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, #cacfe9, #5c84f1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.1em;
-  text-align: center;
-  padding: 20px;
-}
-
-.image-placeholder h3 {
-  margin-bottom: 15px;
-  font-size: 1.5em;
-}
-
-.image-placeholder p {
-  margin-bottom: 5px;
-  line-height: 1.5;
-}
-
-/* 新增：内容区域 */
-.content-section {
-  flex: 1;
-  padding: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-/* 新增：文字框样式 */
-.text-box {
-  background: rgb(255, 255, 255);
-  border-radius: 12px;
-  padding: 25px;
-  margin-bottom: 25px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  border-left: 5px solid #667eea;
-}
-
-.text-box h1, 
-.text-box h2 {
-  color: #333;
-  margin-top: 0;
-  margin-bottom: 15px;
-}
-
-.text-box p {
-  color: #555;
-  line-height: 1.6;
-  margin: 10px 0;
-}
-
-/* 新增：欢迎消息框 */
-.welcome-box {
-  background: linear-gradient(135deg, #ffe100 0%, #fff9f9 100%);
-  color: white;
-  border-radius: 12px;
-  padding: 20px;
-  margin: 20px 0;
-  text-align: center;
-  box-shadow: 0 6px 20px rgba(246, 87, 108, 0.3);
-}
-
-/* 新增：用户卡片容器优化 */
-.users-container {
-  background: white;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
-}
-
-/* 更新现有样式以适应新布局 */
-.App-header {
-  background: none;
-  padding: 0;
-  align-items: stretch;
-  min-height: auto;
-}
-
-.App {
-  text-align: center;
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .content-section {
-    padding: 20px 15px;
+  .background-settings {
+    flex-direction: column;
+    width: 100%;
   }
-  
-  .text-box,
-  .users-container,
-  .welcome-box {
-    padding: 20px;
+
+  .background-input {
+    width: 100%;
+    min-width: auto;
   }
-  
-  .image-section {
-    height: 30vh;
-    min-height: 200px;
-  }
-}
-/* 新增：图片容器样式 */
-.image-container {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
 
-.uploaded-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-bottom: 3px solid #616a92;
-}
-
-.image-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  text-align: center;
-  padding: 20px;
-}
-
-.image-overlay h3 {
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.image-overlay p {
-  margin-bottom: 20px;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-/* 图片操作按钮 */
-.image-action-btn {
-  padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #333;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.image-action-btn:hover {
-  background: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-}
-
-/* 上传控件样式 */
-.upload-controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-  margin-top: 15px;
-  width: 100%;
-}
-
-.upload-btn {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #000000 0%, #e0e0e0 100%);
-  color: white;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  text-align: center;
-  min-width: 200px;
-}
-
-.upload-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-.upload-demo-btn {
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #333;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  text-align: center;
-  min-width: 200px;
-}
-
-.upload-demo-btn:hover {
-  background: white;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
-}
-
-.or-text {
-  color: white;
-  font-weight: 500;
-  position: relative;
-  padding: 0 10px;
-}
-
-.or-text::before,
-.or-text::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 50px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.or-text::before {
-  right: 100%;
-}
-
-.or-text::after {
-  left: 100%;
-}
-
-.image-hint {
-  font-size: 0.9em;
-  opacity: 0.9;
-  margin-top: 5px !important;
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .upload-controls {
-    gap: 10px;
-  }
-  
-  .upload-btn,
-  .upload-demo-btn {
-    min-width: 180px;
-    padding: 10px 20px;
-    font-size: 0.9em;
+  .background-btn {
+    width: 100%;
   }
 }

@@ -68,7 +68,7 @@ function Auth({ onLoginSuccess }) {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h2>{isLogin ? '用户登录' : '用户注册'}</h2>
+        <h2>{isLogin ? '团队协作模型-用户登录' : '用户注册'}</h2>
         
         <form onSubmit={handleSubmit}>
           {/* 注册模式显示姓名输入框 */}

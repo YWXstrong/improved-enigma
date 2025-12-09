@@ -82,7 +82,7 @@ def generate_password_hash(password):
     return f'pbkdf2:sha256:{iterations}${salt.hex()}${hash_value.hex()}'
 ```
 
-### 4.2 Session 管理机制
+### Session 管理机制
 
 #### 工作原理
 1. **服务器端存储**：Session 数据存储在服务器内存或数据库中
@@ -104,7 +104,7 @@ def generate_password_hash(password):
 服务器通过 cookie 识别用户身份
 ```
 
-### 4.3 数据库迁移策略
+###  数据库迁移策略
 
 #### 问题
 SQLite 不支持直接修改表结构（如添加 NOT NULL 列），需要特殊处理。
@@ -128,7 +128,7 @@ if 'password_hash' not in columns:
     db.session.commit()
 ```
 
-## 五、安全考虑
+## 安全考虑
 
 ### 5.1 密码安全
 - ✅ 密码使用 PBKDF2 加密存储
