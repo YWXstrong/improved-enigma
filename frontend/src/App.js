@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 import Auth from './Auth';
+import ProjectForm from './components/ProjectForm'; 
 //导入必要模块
 //1.reac核心库以及两种重要的HOOK（usestate用于管理状态。useEffect用于副作用处理）
 //2.axios用于HTTP请求
 //3.应用的css的样式文件
 //4.Auth组件用于登录注册
-
+//5.新的项目管理（模块）组件
 function App() {
   //定义组件的状态（之后的代码第一块就在这里面改）
   const [message, setMessage] = useState('');   //储存后端返回的欢迎消息
@@ -16,10 +17,17 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);  // 【新增】登录状态
   const [currentUser, setCurrentUser] = useState(null);  // 【新增】当前登录用户信息
 
-  const [backgroundImage, setBackgroundImage] = useState(null);  // 【新增】存储背景图片
+  const [_backgroundImage, setBackgroundImage] = useState(null); // 【新增】存储背景图片
   const [imagePreview, setImagePreview] = useState(null);       // 【新增】图片预览URL
-  
+  // 【修改】在现有状态后添加
+  const [projects, setProjects] = useState([]);  // 【新增】项目列表
+  const [showProjectForm, setShowProjectForm] = useState(false);  // 【新增】显示项目表单
+  const [editingProject, setEditingProject] = useState(null);  // 【新增】正在编辑的项目
+  const [activeProjectId, setActiveProjectId] = useState(null);  // 【新增】当前选中的项目
+  const [projectMembers, setProjectMembers] = useState([]);  // 【新增】项目成员列表
+  const [inviteEmail, setInviteEmail] = useState('');  // 【新增】邀请邮箱
  
+
 
   // 检查登录状态和获取数据
   useEffect(() => {
@@ -65,13 +73,120 @@ function App() {
     fetchData();//调用异步函数
   }, [isLoggedIn]);//依赖isLoggedIn，登录状态改变时重新获取数据
 
-  // 【新增】处理登录成功
-  const handleLoginSuccess = (user) => {
-    setIsLoggedIn(true);
-    setCurrentUser(user);
-    // 登录成功后获取用户列表
-    fetchUsers();
-  };
+  
+
+  // 【新增】修改handleLoginSuccess，登录后获取项目
+const handleLoginSuccess = (user) => {
+  setIsLoggedIn(true);
+  setCurrentUser(user);
+  // 登录成功后获取用户列表和项目列表
+  fetchUsers();
+  fetchProjects();  // 【新增】获取项目
+};
+// 【新增】在handleLoginSuccess函数后添加获取项目的函数
+const fetchProjects = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/api/projects', {
+      withCredentials: true
+    });
+    setProjects(response.data);
+  } catch (error) {
+    console.error('获取项目列表失败:', error);
+  }
+};
+
+
+// 【新增】创建/更新项目
+const handleProjectSubmit = async (projectData) => {
+  try {
+    const url = editingProject 
+      ? `http://localhost:5000/api/projects/update/${editingProject.id}`
+      : 'http://localhost:5000/api/projects/create';
+    
+    const method = editingProject ? 'put' : 'post';
+    
+    const response = await axios[method](url, projectData, {
+      withCredentials: true
+    });
+    
+    if (response.data.project) {
+      // 更新项目列表
+      if (editingProject) {
+        setProjects(projects.map(p => 
+          p.id === response.data.project.id ? response.data.project : p
+        ));
+      } else {
+        setProjects([...projects, response.data.project]);
+      }
+      
+      // 重置表单
+      setShowProjectForm(false);
+      setEditingProject(null);
+    }
+  } catch (error) {
+    console.error('保存项目失败:', error);
+    alert(error.response?.data?.error || '操作失败');
+  }
+};
+
+// 【新增】删除项目
+const handleDeleteProject = async (projectId) => {
+  if (!window.confirm('确定要删除这个项目吗？')) return;
+  
+  try {
+    await axios.delete(`http://localhost:5000/api/projects/delete/${projectId}`, {
+      withCredentials: true
+    });
+    
+    setProjects(projects.filter(p => p.id !== projectId));
+    if (activeProjectId === projectId) {
+      setActiveProjectId(null);
+    }
+  } catch (error) {
+    console.error('删除项目失败:', error);
+    alert(error.response?.data?.error || '删除失败');
+  }
+};
+
+// 【新增】邀请成员
+const handleInviteMember = async () => {
+  if (!activeProjectId || !inviteEmail.trim()) return;
+  
+  try {
+    const response = await axios.post(
+      `http://localhost:5000/api/projects/${activeProjectId}/invite`,
+      { email: inviteEmail },
+      { withCredentials: true }
+    );
+    
+    alert(response.data.message);
+    setInviteEmail('');
+    // 刷新成员列表
+    fetchProjectMembers(activeProjectId);
+  } catch (error) {
+    console.error('邀请成员失败:', error);
+    alert(error.response?.data?.error || '邀请失败');
+  }
+};
+
+// 【新增】获取项目成员
+const fetchProjectMembers = async (projectId) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/api/projects/${projectId}/members`,
+      { withCredentials: true }
+    );
+    setProjectMembers(response.data);
+  } catch (error) {
+    console.error('获取项目成员失败:', error);
+  }
+};
+
+// 【新增】选中项目
+const handleSelectProject = (projectId) => {
+  setActiveProjectId(projectId);
+  fetchProjectMembers(projectId);
+};
 
   // 【新增】获取用户列表
   const fetchUsers = async () => {
@@ -133,6 +248,9 @@ const handleClearImage = () => {
   if (fileInput) {
     fileInput.value = '';
   }
+
+
+
 };
   //加载状态渲染
   if (loading) {
@@ -250,6 +368,189 @@ const handleClearImage = () => {
           )}
         </div>
       </div>
+      
+      
+<div className="users-container">
+  <h2>项目管理</h2>
+  
+  {/* 项目操作按钮 */}
+  <div style={{ marginBottom: '20px' }}>
+    <button 
+      onClick={() => { setShowProjectForm(true); setEditingProject(null); }}
+      style={{
+        padding: '10px 20px',
+        background: '#667eea',
+        color: 'white',
+        border: 'none',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        marginRight: '10px'
+      }}
+    >
+      创建新项目
+    </button>
+  </div>
+
+  {/* 项目表单 */}
+  {showProjectForm && (
+    <div style={{
+      background: '#f8f9fa',
+      padding: '20px',
+      borderRadius: '8px',
+      marginBottom: '20px'
+    }}>
+      <h3>{editingProject ? '编辑项目' : '创建新项目'}</h3>
+      <ProjectForm 
+        project={editingProject}
+        onSubmit={handleProjectSubmit}
+        onCancel={() => {
+          setShowProjectForm(false);
+          setEditingProject(null);
+        }}
+      />
+    </div>
+  )}
+
+  {/* 项目列表 */}
+  <div className="users-list">
+    {projects.length > 0 ? (
+      projects.map(project => (
+        <div 
+          key={project.id} 
+          className="user-card"
+          style={{
+            background: activeProjectId === project.id ? '#e3f2fd' : '',
+            cursor: 'pointer'
+          }}
+          onClick={() => handleSelectProject(project.id)}
+        >
+          <div className="user-avatar">
+            <div style={{
+              width: '100%',
+              height: '100%',
+              background: '#4caf50',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.2em',
+              fontWeight: 'bold'
+            }}>
+              P
+            </div>
+          </div>
+          <div className="user-info">
+            <strong>{project.name}</strong>
+            <span>{project.description}</span>
+            <div style={{ fontSize: '0.8em', color: '#666', marginTop: '5px' }}>
+              创建者: {project.owner_name} | 状态: {project.status} | 成员: {project.member_count}人
+            </div>
+          </div>
+          <div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditingProject(project);
+                setShowProjectForm(true);
+              }}
+              style={{
+                marginRight: '5px',
+                padding: '5px 10px',
+                fontSize: '0.8em'
+              }}
+            >
+              编辑
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteProject(project.id);
+              }}
+              style={{
+                background: '#ff6b6b',
+                color: 'white',
+                padding: '5px 10px',
+                fontSize: '0.8em'
+              }}
+            >
+              删除
+            </button>
+          </div>
+        </div>
+      ))
+    ) : (
+      <p>暂无项目，请创建一个新项目</p>
+    )}
+  </div>
+
+  {/* 项目概览仪表板 */}
+  {activeProjectId && (
+    <div style={{
+      marginTop: '30px',
+      padding: '20px',
+      background: '#f8f9fa',
+      borderRadius: '8px'
+    }}>
+      <h3>项目概览</h3>
+      {projects.find(p => p.id === activeProjectId) && (
+        <>
+          <div style={{ marginBottom: '20px' }}>
+            <h4>{projects.find(p => p.id === activeProjectId).name}</h4>
+            <p>{projects.find(p => p.id === activeProjectId).description}</p>
+          </div>
+          
+          {/* 成员管理 */}
+          <div>
+            <h4>项目成员 ({projectMembers.length}人)</h4>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+              <input
+                type="email"
+                placeholder="输入邮箱邀请成员"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  marginRight: '10px',
+                  borderRadius: '4px',
+                  border: '1px solid #ddd'
+                }}
+              />
+              <button onClick={handleInviteMember}>
+                邀请
+              </button>
+            </div>
+            
+            <div className="users-list">
+              {projectMembers.map(member => (
+                <div key={member.id} className="user-card">
+                  <div className="user-avatar">
+                    <div style={{
+                      width: '100%',
+                      height: '100%',
+                      background: '#2196f3',
+                      color: 'white',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1em'
+                    }}>
+                      {member.name.charAt(0)}
+                    </div>
+                  </div>
+                  <div className="user-info">
+                    <strong>{member.name}</strong>
+                    <span>{member.email}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )}
+</div>
 
       {/* 链接框 */}
       <div className="text-box">

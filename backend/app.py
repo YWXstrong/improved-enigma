@@ -62,7 +62,42 @@ class User(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
+      # 【新增】在User模型后添加项目模型
+class Project(db.Model):
+    __tablename__ = 'projects'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    status = db.Column(db.String(20), default='active')  # active, completed, archived
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 关系
+    owner = db.relationship('User', backref='owned_projects')
+    members = db.relationship('User', secondary='project_members', backref='projects')
+    
+    def to_dict(self):
+        """将项目对象转换为字典"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'owner_id': self.owner_id,
+            'owner_name': self.owner.name if self.owner else None,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'member_count': len(self.members) if self.members else 0
+        }
 
+# 【新增】项目成员关联表
+project_members = db.Table('project_members',
+    db.Column('project_id', db.Integer, db.ForeignKey('projects.id'), primary_key=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('joined_at', db.DateTime, default=datetime.utcnow)
+)
 # 【新增】初始化数据库（创建表）
 def init_db():
     with app.app_context():
@@ -137,8 +172,41 @@ def init_db():
                 db.session.commit()
                 print("数据库初始化完成，已添加示例数据（默认密码：123456）")
         except Exception as e:
-            print(f"添加示例数据时出错: {e}")
+            print(f"添加示例数据时出错: {e}")  
             db.session.rollback()
+# 在用户示例数据添加后，添加项目示例数据：
+try:
+    if Project.query.count() == 0:
+        # 获取一些用户作为项目所有者
+        users = User.query.limit(2).all()
+        
+        if users:
+            sample_projects = [
+                {
+                    "name": "网站重构项目",
+                    "description": "重构公司官方网站，提升用户体验",
+                    "owner_id": users[0].id,
+                    "status": "active"
+                },
+                {
+                    "name": "移动应用开发",
+                    "description": "开发新一代移动应用",
+                    "owner_id": users[1].id if len(users) > 1 else users[0].id,
+                    "status": "active"
+                }
+            ]
+            
+            for project_data in sample_projects:
+                project = Project(**project_data)
+                # 将所有者添加为成员
+                project.members.append(User.query.get(project_data['owner_id']))
+                db.session.add(project)
+            
+            db.session.commit()
+            print("项目示例数据添加成功")
+except Exception as e:
+    print(f"添加项目示例数据时出错: {e}")
+    
 # 【新增】数据库配置结束
 
 # 定义根路由，当访问 http://localhost:5000/ 时触发
@@ -367,7 +435,7 @@ def get_user(user_id):
         return jsonify(user.to_dict())
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
+  
 # 定义健康检查路由，用于监控服务状态
 @app.route('/api/health')
 def health_check():
@@ -413,7 +481,177 @@ def reset_database():
         print(f"重置数据库错误: {str(e)}")
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
+# 【新增】在用户API路由后添加项目API路由
+# 获取当前用户的所有项目
+@app.route('/api/projects')
+def get_projects():
+    """获取当前用户参与的所有项目"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "请先登录"}), 401
+        
+        # 获取用户创建和参与的项目
+        user = User.query.get(user_id)
+        projects = user.owned_projects + user.projects
+        # 去重
+        unique_projects = list({p.id: p for p in projects}.values())
+        
+        return jsonify([project.to_dict() for project in unique_projects])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
+# 创建新项目
+@app.route('/api/projects/create', methods=['POST'])
+def create_project():
+    """创建新项目"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "请先登录"}), 401
+        
+        data = request.get_json()
+        if not data or 'name' not in data:
+            return jsonify({"error": "项目名称不能为空"}), 400
+        
+        # 创建项目
+        new_project = Project(
+            name=data['name'],
+            description=data.get('description', ''),
+            owner_id=user_id,
+            status=data.get('status', 'active')
+        )
+        
+        # 将创建者添加为项目成员
+        new_project.members.append(User.query.get(user_id))
+        
+        db.session.add(new_project)
+        db.session.commit()
+        
+        return jsonify({
+            "message": "项目创建成功",
+            "project": new_project.to_dict()
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# 更新项目
+@app.route('/api/projects/update/<int:project_id>', methods=['PUT'])
+def update_project(project_id):
+    """更新项目信息"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "请先登录"}), 401
+        
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"error": "项目不存在"}), 404
+        
+        # 检查权限（只有创建者可以修改）
+        if project.owner_id != user_id:
+            return jsonify({"error": "无权修改此项目"}), 403
+        
+        data = request.get_json()
+        if 'name' in data:
+            project.name = data['name']
+        if 'description' in data:
+            project.description = data['description']
+        if 'status' in data:
+            project.status = data['status']
+        
+        project.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({
+            "message": "项目更新成功",
+            "project": project.to_dict()
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# 删除项目
+@app.route('/api/projects/delete/<int:project_id>', methods=['DELETE'])
+def delete_project(project_id):
+    """删除项目"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "请先登录"}), 401
+        
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"error": "项目不存在"}), 404
+        
+        # 检查权限（只有创建者可以删除）
+        if project.owner_id != user_id:
+            return jsonify({"error": "无权删除此项目"}), 403
+        
+        db.session.delete(project)
+        db.session.commit()
+        
+        return jsonify({"message": "项目删除成功"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# 邀请用户加入项目
+@app.route('/api/projects/<int:project_id>/invite', methods=['POST'])
+def invite_to_project(project_id):
+    """邀请用户加入项目"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "请先登录"}), 401
+        
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"error": "项目不存在"}), 404
+        
+        # 检查权限（只有创建者可以邀请）
+        if project.owner_id != user_id:
+            return jsonify({"error": "无权邀请成员"}), 403
+        
+        data = request.get_json()
+        if not data or 'email' not in data:
+            return jsonify({"error": "请提供用户邮箱"}), 400
+        
+        # 查找用户
+        user = User.query.filter_by(email=data['email']).first()
+        if not user:
+            return jsonify({"error": "用户不存在"}), 404
+        
+        # 检查是否已经是成员
+        if user in project.members:
+            return jsonify({"error": "用户已是项目成员"}), 400
+        
+        # 添加成员
+        project.members.append(user)
+        db.session.commit()
+        
+        return jsonify({
+            "message": f"已邀请 {user.name} 加入项目",
+            "user": user.to_dict()
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# 获取项目成员
+@app.route('/api/projects/<int:project_id>/members')
+def get_project_members(project_id):
+    """获取项目成员列表"""
+    try:
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"error": "项目不存在"}), 404
+        
+        return jsonify([user.to_dict() for user in project.members])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 # 程序入口点：当直接运行此脚本时启动Flask开发服务器
 if __name__ == '__main__':
     # 【新增】初始化数据库（仅在第一次运行时创建）
