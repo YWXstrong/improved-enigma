@@ -523,8 +523,9 @@
     font-size: 0.9em;
   }
 }
-/* 【新增】在现有CSS最后添加项目相关样式 */
 
+
+/* 项目管理模块 */
 /* 项目状态标签 */
 .project-status {
   display: inline-block;

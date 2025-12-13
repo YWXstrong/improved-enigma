@@ -1,25 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './App.css';
-import Auth from './Auth';
-import ProjectForm from './components/ProjectForm'; 
-//导入必要模块
-//1.reac核心库以及两种重要的HOOK（usestate用于管理状态。useEffect用于副作用处理）
-//2.axios用于HTTP请求
-//3.应用的css的样式文件
-//4.Auth组件用于登录注册
-//5.新的项目管理（模块）组件
+import React, { useState, useEffect } from 'react'; //1.reac核心库以及两种重要的HOOK（usestate用于管理状态。useEffect用于副作用处理）
+import axios from 'axios';                          //2.axios用于HTTP请求
+import './App.css';                                 //3.应用的css的样式文件
+import Auth from './Auth';                          //4.Auth组件用于登录注册
+import ProjectForm from './components/ProjectForm'; //5.新的项目管理（模块）组件库
+
+//函数的引用
 function App() {
-  //定义组件的状态（之后的代码第一块就在这里面改）
+  //定义组件的状态
   const [message, setMessage] = useState('');   //储存后端返回的欢迎消息
   const [users, setUsers] = useState([]);       //储存用户列表数据
   const [loading, setLoading] = useState(true); //控制加载状态的布尔值
+  //用户登入模块
   const [isLoggedIn, setIsLoggedIn] = useState(false);  // 【新增】登录状态
   const [currentUser, setCurrentUser] = useState(null);  // 【新增】当前登录用户信息
-
   const [_backgroundImage, setBackgroundImage] = useState(null); // 【新增】存储背景图片
   const [imagePreview, setImagePreview] = useState(null);       // 【新增】图片预览URL
-  // 【修改】在现有状态后添加
+  // 项目管理模块
   const [projects, setProjects] = useState([]);  // 【新增】项目列表
   const [showProjectForm, setShowProjectForm] = useState(false);  // 【新增】显示项目表单
   const [editingProject, setEditingProject] = useState(null);  // 【新增】正在编辑的项目

@@ -6,22 +6,14 @@
 # ## 📖 文档目录
 
 - 项目概述
+
+- 增删查改细则&注意事项
     
-- 技术架构
-    
-- 环境配置
-    
-- 开发指南
-    
-- API文档
-    
-- 部署说明
-    
-- 故障排除
-    
-- 学习总结
-    
-- 后续规划
+- 各模块简单介绍&运行逻辑，调取数据由来
+
+- 使用教学
+
+- 常用代码，注意事项
 
 
 ### 简介
@@ -57,7 +49,7 @@ js具体的功能写好之后。后面要跟上JSX代码的书写，让函数能
   - 4.后端：
    记住这个基本原则：如果功能需要与数据库交互、需要业务逻辑处理、或需要与其他系统集成，那么就需要修改后端。如果只是界面展示或用户交互，可以只修改前端。（还在学习中QAQ）
 
-### 用户登入注册模块
+## 用户登入注册模块
 - 1.运用的算法和原理
 ####  密码哈希算法：
 
@@ -161,8 +153,125 @@ if 'password_hash' not in columns:
 - **加密算法**：PBKDF2 (通过 werkzeug)
 - **会话管理**：Flask Session
 
+## 项目管理模块细则
 
+### 功能概述
+项目管理模块实现了项目创建、编辑、删除、成员邀请和项目概览功能，为用户提供了一个完整的团队协作项目管理界面。
 
+### 项目列表获取流程
+text
+前端组件挂载 → useEffect触发 → fetchProjects()调用
+    ↓
+发送GET请求到 /api/projects
+    ↓
+后端验证session → 查询数据库 → 返回JSON数据
+    ↓
+前端接收数据 → setProjects()更新状态 → 重新渲染UI
+5.2 项目创建流程
+text
+用户点击"创建项目" → 显示ProjectForm组件
+    ↓
+填写表单 → 点击提交 → handleProjectSubmit()触发
+    ↓
+发送POST请求到 /api/projects/create
+    ↓
+后端验证数据 → 创建数据库记录 → 返回新项目信息
+    ↓
+前端添加新项目到列表 → 更新UI显示
+5.3 成员邀请流程
+text
+用户点击项目 → 显示项目概览 → 输入邮箱 → 点击"邀请"
+    ↓
+handleInviteMember()触发 → 发送POST请求
+    ↓
+后端验证权限 → 查找用户 → 添加关联记录
+    ↓
+前端刷新成员列表 → 显示新成员
+
+### 项目管理模块代码运行流程
+6.1 组件加载流程
+text
+App.js加载 → 检查登录状态 → 获取用户数据
+    ↓
+已登录 → 获取项目列表 → 渲染项目管理界面
+    ↓
+显示: 项目操作按钮 + 项目列表 + 项目概览面板
+6.2 表单提交流程
+text
+显示ProjectForm组件 → 用户填写数据
+    ↓
+提交表单 → 调用父组件的handleProjectSubmit
+    ↓
+根据editingProject状态决定API端点
+    ↓
+发送请求 → 处理响应 → 更新状态 → 关闭表单
+七、后续修改指南
+7.1 添加新字段（如项目截止日期）
+后端修改:
+
+python
+# 1. 在Project模型中添加字段
+due_date = db.Column(db.DateTime)
+
+# 2. 在to_dict()方法中返回该字段
+'due_date': self.due_date.isoformat() if self.due_date else None
+
+# 3. 在create_project和update_project中处理该字段
+前端修改:
+
+javascript
+// 1. 在ProjectForm中添加日期选择器
+<input type="date" value={formData.due_date} />
+
+// 2. 更新formData状态
+const [formData, setFormData] = useState({
+  // ... 原有字段
+  due_date: project?.due_date || ''
+});
+
+// 3. 在项目列表中显示截止日期
+7.2 添加项目角色权限
+后端修改:
+
+python
+# 1. 在project_members表中添加角色字段
+db.Column('role', db.String(20), default='member')
+
+# 2. 创建ProjectMember模型替代关联表
+class ProjectMember(db.Model):
+    __tablename__ = 'project_members'
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    role = db.Column(db.String(20), default='member')
+    joined_at = db.Column(db.DateTime, default=datetime.utcnow)
+7.3 添加项目任务功能
+建议步骤:
+
+创建Task模型（包含task_name, description, assignee_id, status等）
+
+添加任务相关API（/api/projects/<id>/tasks）
+
+创建前端Task组件
+
+在项目概览中添加任务管理面板
+
+7.4 优化性能
+建议修改:
+
+分页加载: 项目列表添加分页
+
+缓存数据: 使用React Query或Redux缓存项目数据
+
+懒加载: 项目成员列表点击时才加载
+
+7.5 样式美化
+建议修改:
+
+创建独立的CSS文件管理样式
+
+使用CSS模块化
+
+添加动画效果（如项目创建成功提示）
  
 
 

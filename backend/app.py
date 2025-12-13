@@ -2,16 +2,16 @@
 from flask import Flask, jsonify, Response, request, session  # Flask核心，jsonify用于返回JSON，Response用于构建响应，request用于获取请求数据，session用于会话管理
 from flask_cors import CORS  # 处理跨域资源共享（CORS），允许前端应用访问后端API
 
-# 【新增】导入SQLAlchemy用于数据库操作
+# 导入SQLAlchemy用于数据库操作
 from flask_sqlalchemy import SQLAlchemy  # type: ignore # SQLAlchemy ORM
-# 【新增】导入操作系统和日期时间模块
+# 导入操作系统和日期时间模块
 import os
 from datetime import datetime
 
-# 【新增】导入json模块（虽然之前有，但保留以保持代码清晰）
+# 导入json模块（虽然之前有，但保留以保持代码清晰）
 import json  # Python内置的JSON处理模块
 
-# 【新增】导入密码哈希工具
+# 导入密码哈希工具
 from werkzeug.security import generate_password_hash, check_password_hash  # 用于密码加密和验证
 
 # 创建Flask应用实例，__name__表示当前模块名
@@ -31,10 +31,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "inst
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 关闭修改跟踪，减少内存开销
 app.config['SECRET_KEY'] = 'your-secret-key-here'  # 用于会话安全，生产环境请使用强密钥
 
-# 【新增】初始化数据库
+# 始化数据库
 db = SQLAlchemy(app)
 
-# 【新增】定义用户模型（对应数据库表）
+# 定义用户模型（对应数据库表）
 class User(db.Model):
     __tablename__ = 'users'
     
@@ -62,7 +62,9 @@ class User(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
-      # 【新增】在User模型后添加项目模型
+        
+     
+      # 项目管理模块函数定义
 class Project(db.Model):
     __tablename__ = 'projects'
     
@@ -481,7 +483,9 @@ def reset_database():
         print(f"重置数据库错误: {str(e)}")
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
-# 【新增】在用户API路由后添加项目API路由
+    
+
+# 项目管理模块
 # 获取当前用户的所有项目
 @app.route('/api/projects')
 def get_projects():
