@@ -274,7 +274,7 @@ const handleClearImage = () => {
       <img src={imagePreview} alt="自定义背景" className="uploaded-image" />
       <div className="image-overlay">
         <h3>团队协作平台</h3>
-        <p>当前使用本地图片作为背景</p>
+        <p></p>
         <button onClick={handleClearImage} className="image-action-btn">
           清除图片
         </button>
@@ -314,7 +314,7 @@ const handleClearImage = () => {
     {/* 内容区域 - 占2/3高度 */}
     <div className="content-section">
       <div className="text-box">
-        <h1>团队协作模型</h1>
+        <h1></h1>
         <div className="welcome-box">
           <p>{message || '欢迎使用团队协作平台'}</p>
         </div>
@@ -342,7 +342,7 @@ const handleClearImage = () => {
                   <div style={{
                     width: '100%',
                     height: '100%',
-                    background: '#667eea',
+                    background: '#000000ff',
                     color: 'white',
                     display: 'flex',
                     alignItems: 'center',
@@ -375,7 +375,7 @@ const handleClearImage = () => {
       onClick={() => { setShowProjectForm(true); setEditingProject(null); }}
       style={{
         padding: '10px 20px',
-        background: '#667eea',
+        background: '#000000ff',
         color: 'white',
         border: 'none',
         borderRadius: '6px',
@@ -530,6 +530,7 @@ const handleClearImage = () => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '1em'
+
                     }}>
                       {member.name.charAt(0)}
                     </div>

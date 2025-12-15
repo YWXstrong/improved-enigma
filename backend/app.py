@@ -217,7 +217,7 @@ def home():
     # 返回JSON格式的欢迎消息，包含服务状态和版本信息
     # 【修改】更新欢迎消息，提示已连接数据库
     return jsonify({
-        "message": "Flask 后端服务运行正常！已连接SQLite数据库",  # 【修改】添加数据库连接信息
+        "message": "欢迎使用团队协作平台！",  # 【修改】添加数据库连接信息
         "status": "success",
         "version": "1.0.0",
         "database": "SQLite"  # 【新增】添加数据库类型字段

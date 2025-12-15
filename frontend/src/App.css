@@ -132,15 +132,16 @@
 
 /* 链接容器样式 */
 .links {
-  margin-top: 30px;  /* 顶部外边距 */
+  display: inline-block; 
+  margin-top: 5px;  /* 顶部外边距 */
 }
 
 /* 链接样式 */
 .links a {
   display: inline-block;  /* 行内块级元素 */
   padding: 10px 20px;  /* 内边距 */
-  background: #61dafb;  /* 蓝色背景 */
-  color: #282c34;  /* 深色文字 */
+  background: #000000;  /* 黑色背景 */
+  color: #ffffff;  /* 深色文字 */
   text-decoration: none;  /* 去除下划线 */
   border-radius: 25px;  /* 圆形按钮 */
   font-weight: bold;  /* 粗体 */
@@ -149,7 +150,7 @@
 
 /* 链接悬停效果 */
 .links a:hover {
-  background: #1e90d6;  /* 悬停时背景色变深 */
+  background: #5f5f5f;  /* 悬停时背景色变深 */
   transform: translateY(-2px);  /* 向上移动2px */
   box-shadow: 0 5px 15px rgba(186, 197, 206, 0.3);  /* 添加蓝色阴影 */
 }
@@ -309,7 +310,7 @@
   padding: 25px;
   margin-bottom: 25px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  border-left: 5px solid #667eea;
+
 }
 
 .text-box h1, 
@@ -327,8 +328,8 @@
 
 /* 新增：欢迎消息框 */
 .welcome-box {
-  background: linear-gradient(135deg, #ffe100 0%, #fff9f9 100%);
-  color: white;
+  background: linear-gradient(135deg, #1e7de9 0%, #fff9f9 100%);
+  color: rgb(0, 0, 0);
   border-radius: 12px;
   padding: 20px;
   margin: 20px 0;
@@ -528,7 +529,7 @@
 /* 项目管理模块 */
 /* 项目状态标签 */
 .project-status {
-  display: inline-block;
+  display: flex;
   padding: 3px 8px;
   border-radius: 12px;
   font-size: 0.8em;
