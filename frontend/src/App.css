@@ -1,575 +1,897 @@
-/* 主应用容器样式 */
-.App {
-  text-align: left;  /* 文本左对齐显示 */
-}
-
-/* React Logo样式 */
-.App-logo {
-  height: 40vmin;  /* 使用视窗最小单位的40%作为高度 */
-  pointer-events: none;  /* 禁止鼠标事件，防止干扰 */
-}
-
-/* 减少动画的媒体查询 - 针对偏好减少运动的用户 */
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;  /* 无限旋转动画 */
-  }
-}
-
-/* 应用头部主样式 */
-.App-header {
-  background-color: #fdfbfb;  /* 深色背景 */
-  min-height: 100vh;  /* 至少占满整个视窗高度 */
-  display: flex;  /* 使用弹性布局 */
-  flex-direction: column;  /* 垂直方向排列 */
-  align-items: flex-start;  /* 水平左对齐 */
-  justify-content: flex-start;  /* 垂直顶部对齐 */
-  font-size: calc(10px + 2vmin);  /* 响应式字体大小 */
-  color: rgb(0, 0, 0);  /* 白色文字 */
-  padding: 20px;  /* 内边距 */
-}
-
-/* Logo容器样式 */
-.logo-container {
-  display: flex;  /* 弹性布局，使子元素水平排列 */
-  gap: 20px;  /* 子元素间距 */
-  margin-bottom: 30px;  /* 底部外边距 */
-}
-
-/* 基础Logo样式 */
-.logo {
-  width: 80px;  /* 固定宽度 */
-  height: 80px;  /* 固定高度 */
-  border-radius: 50%;  /* 圆形效果 */
-  transition: transform 0.3s ease;  /* 变换动画效果 */
-}
-
-/* Logo悬停效果 */
-.logo:hover {
-  transform: scale(1.1);  /* 鼠标悬停时放大 */
-}
-
-/* 大尺寸Logo样式 */
-.logo-large {
-  width: 150px;  /* 较大宽度 */
-  height: 150px;  /* 较大高度 */
-  border-radius: 20px;  /* 圆角矩形 */
-}
-
-/* 旋转动画定义 */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);  /* 起始角度0度 */
-  }
-  to {
-    transform: rotate(360deg);  /* 结束角度360度（完整一圈） */
-  }
-}
-
-/* 用户列表容器样式 */
-.users-list {
-  display: flex;  /* 弹性布局 */
-  flex-direction: column;  /* 垂直排列 */
-  gap: 15px;  /* 子元素间距 */
-  max-width: 500px;  /* 最大宽度限制 */
-  width: 100%;  /* 宽度占满容器 */
-  margin: 20px 0;  /* 上下边距20px，左对齐 */
-}
-
-/* 用户卡片样式 */
-.user-card {
-  display: flex;  /* 弹性布局 */
-  align-items: center;  /* 垂直居中 */
-  background: rgba(78, 76, 76, 0.1);  /* 半透明白色背景 */
-  border-radius: 12px;  /* 圆角 */
-  padding: 15px;  /* 内边距 */
-  transition: all 0.3s ease;  /* 所有属性的过渡动画 */
-  text-align: left;  /* 文字左对齐 */
-}
-
-/* 用户卡片悬停效果 */
-.user-card:hover {
-  background: rgba(255, 255, 255, 0.15);  /* 悬停时背景变亮 */
-  transform: translateY(-2px);  /* 向上移动2px产生悬停效果 */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);  /* 添加阴影 */
-}
-
-/* 用户头像容器 */
-.user-avatar {
-  width: 50px;  /* 固定宽度 */
-  height: 50px;  /* 固定高度 */
-  margin-right: 15px;  /* 右外边距 */
-  border-radius: 50%;  /* 圆形 */
-  overflow: hidden;  /* 内容溢出隐藏 */
-  border: 2px solid #d1ebf1;  /* 蓝色边框 */
-}
-
-/* 用户头像图片样式 */
-.user-avatar img {
-  width: 100%;  /* 宽度填满容器 */
-  height: 100%;  /* 高度填满容器 */
-  object-fit: cover;  /* 图片按比例裁剪填充 */
-}
-
-/* 用户信息区域 */
-.user-info {
-  flex: 1;  /* 占据剩余空间 */
-}
-
-/* 用户名样式 */
-.user-info strong {
-  display: block;  /* 块级元素，独占一行 */
-  font-size: 1.1em;  /* 相对字体大小 */
-  margin-bottom: 5px;  /* 底部外边距 */
-}
-
-/* 用户邮箱样式 */
-.user-info span {
-  font-size: 0.9em;  /* 稍小的字体 */
-  opacity: 0.8;  /* 80%透明度 */
-  color: #ccc;  /* 浅灰色文字 */
-}
-
-/* 链接容器样式 */
-.links {
-  display: inline-block; 
-  margin-top: 5px;  /* 顶部外边距 */
-}
-
-/* 链接样式 */
-.links a {
-  display: inline-block;  /* 行内块级元素 */
-  padding: 10px 20px;  /* 内边距 */
-  background: #000000;  /* 黑色背景 */
-  color: #ffffff;  /* 深色文字 */
-  text-decoration: none;  /* 去除下划线 */
-  border-radius: 25px;  /* 圆形按钮 */
-  font-weight: bold;  /* 粗体 */
-  transition: all 0.3s ease;  /* 过渡动画 */
-}
-
-/* 链接悬停效果 */
-.links a:hover {
-  background: #5f5f5f;  /* 悬停时背景色变深 */
-  transform: translateY(-2px);  /* 向上移动2px */
-  box-shadow: 0 5px 15px rgba(186, 197, 206, 0.3);  /* 添加蓝色阴影 */
-}
-
-/* 响应式设计 - 平板及以下设备 */
-@media (max-width: 768px) {
-  .logo-container {
-    flex-direction: column;  /* 垂直排列Logo */
-    align-items: center;  /* 居中对齐 */
-  }
-  
-  .user-card {
-    padding: 12px;  /* 减小内边距 */
-  }
-  
-  .user-avatar {
-    width: 40px;  /* 缩小头像 */
-    height: 40px;  /* 缩小头像 */
-    margin-right: 10px;  /* 减小右边距 */
-  }
-}
-
-/* React Logo链接样式（可能未使用） */
-.App-link {
-  color: #61dafb;  /* 蓝色链接 */
-}
-
-/* React Logo旋转动画定义 */
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);  /* 起始角度 */
-  }
-  to {
-    transform: rotate(360deg);  /* 结束角度 */
-  }
-}
-
-/* 【新增】当前用户信息区域 */
-.current-user {
-  background: rgba(88, 87, 87, 0.1);
-  border-radius: 12px;
-  padding: 15px 20px;
-  margin: 20px 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-  flex-wrap: wrap;
-}
-
-.current-user p {
-  margin: 0;
-  font-size: 0.9em;
-}
-
-.current-user strong {
-  color: #f3a54b;
-}
-
-/* 【新增】登出按钮样式 */
-.logout-btn {
-  padding: 8px 16px;
-  background: #ff6b6b;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-
-.logout-btn:hover {
-  background: #ff5252;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
-}
-
-/* 响应式设计 - 当前用户区域 */
-@media (max-width: 768px) {
-  .current-user {
-    flex-direction: column;
-    text-align: left;
-  }
-  
-  .logout-btn {
-    width: 100%;
-  }
-}
-/* 新增：主容器布局 */
-.main-container {
+/* ============================================
+   主容器和全局样式
+============================================ */
+.app-container {
   width: 100%;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(135deg, #fcfcff 0%, #666666 100%);
-  position: relative;
-  overflow: hidden;
+  background: linear-gradient(135deg, #edeef0 0%, #615f5f 100%); /* 主背景渐变 */
 }
 
-/* 新增：背景图片容器 */
+/* ============================================
+   顶部图片区域新样式
+============================================ */
+
 .image-section {
   width: 100%;
-  height: 33vh;
-  min-height: 250px;
+  height: 300px; /* 图片区域高度 - 可调整 */
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
 }
 
-.image-section img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-bottom: 3px solid #000000;
-}
-
-.image-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, #cacfe9, #5c84f1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.1em;
-  text-align: center;
-  padding: 20px;
-}
-
-.image-placeholder h3 {
-  margin-bottom: 15px;
-  font-size: 1.5em;
-}
-
-.image-placeholder p {
-  margin-bottom: 5px;
-  line-height: 1.5;
-}
-
-/* 新增：内容区域 */
-.content-section {
-  flex: 1;
-  padding: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-/* 新增：文字框样式 */
-.text-box {
-  background: rgb(255, 255, 255);
-  border-radius: 12px;
-  padding: 25px;
-  margin-bottom: 25px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-
-}
-
-.text-box h1, 
-.text-box h2 {
-  color: #333;
-  margin-top: 0;
-  margin-bottom: 15px;
-}
-
-.text-box p {
-  color: #555;
-  line-height: 1.6;
-  margin: 10px 0;
-}
-
-/* 新增：欢迎消息框 */
-.welcome-box {
-  background: linear-gradient(135deg, #1e7de9 0%, #fff9f9 100%);
-  color: rgb(0, 0, 0);
-  border-radius: 12px;
-  padding: 20px;
-  margin: 20px 0;
-  text-align: center;
-  box-shadow: 0 6px 20px rgba(246, 87, 108, 0.3);
-}
-
-/* 新增：用户卡片容器优化 */
-.users-container {
-  background: white;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
-}
-
-/* 更新现有样式以适应新布局 */
-.App-header {
-  background: none;
-  padding: 0;
-  align-items: stretch;
-  min-height: auto;
-}
-
-.App {
-  text-align: center;
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .content-section {
-    padding: 20px 15px;
-  }
-  
-  .text-box,
-  .users-container,
-  .welcome-box {
-    padding: 20px;
-  }
-  
-  .image-section {
-    height: 30vh;
-    min-height: 200px;
-  }
-}
-/* 新增：图片容器样式 */
 .image-container {
   width: 100%;
   height: 100%;
   position: relative;
 }
 
-.uploaded-image {
+.background-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 保持图片比例，覆盖整个区域 */
+  transition: transform 0.5s ease; /* 平滑过渡效果 */
+}
+
+.background-image:hover {
+  transform: scale(1.05); /* 鼠标悬停时轻微放大 */
+}
+
+/* 左上角控制面板 */
+.image-controls-top-left {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.image-controls-top-left:hover {
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.control-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 15px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.control-btn:hover {
+  background: #f8f9fa;
+  border-color: #000000;
+  color: #000000;
+  transform: translateY(-2px);
+}
+
+.control-btn .icon {
+  font-size: 16px;
+}
+
+.control-btn .text {
+  font-weight: 500;
+}
+
+.control-btn.danger {
+  color: #ff6b6b;
+  border-color: #ff6b6b;
+}
+
+.control-btn.danger:hover {
+  background: #ff6b6b;
+  color: white;
+}
+
+.upload-wrapper {
+  display: inline-block;
+}
+
+/* 图片选择器 */
+.image-selector {
+  position: absolute;
+  top: 70px;
+  left: 0;
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  width: 400px;
+  max-width: 90vw;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.selector-header h4 {
+  margin: 0;
+  color: #333;
+}
+
+.close-selector {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.close-selector:hover {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.image-option {
+  aspect-ratio: 16/9;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.image-option:hover {
+  transform: scale(1.05);
+  border-color: #667eea;
+}
+
+.image-option img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-bottom: 3px solid #616a92;
 }
 
-.image-overlay {
+/* 图片标题覆盖层 */
+.image-overlay-center {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(
+    to bottom, 
+    rgba(0, 0, 0, 0.3), 
+    rgba(0, 0, 0, 0.1)
+  );
   color: white;
   text-align: center;
   padding: 20px;
 }
 
-.image-overlay h3 {
+.image-title {
+  font-size: 36px;
+  font-weight: bold;
   margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
 }
 
-.image-overlay p {
-  margin-bottom: 20px;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+.image-subtitle {
+  font-size: 18px;
+  opacity: 0.9;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+  max-width: 600px;
 }
 
-/* 图片操作按钮 */
-.image-action-btn {
-  padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #333;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
+
+/* ============================================
+   主内容区域 - 左右分栏布局
+============================================ */
+.main-content {
+  display: flex;
+  padding: 10px; /* 内边距 - 可调整 */
+  gap: 20px; /* 左右栏间距 - 可调整 */
+  max-width: 1800px; /* 最大宽度限制 - 可调整 */
+  margin: 0 auto; /* 水平居中 */
 }
 
-.image-action-btn:hover {
+/* ============================================
+   左侧导航栏 - 可调整宽度
+============================================ */
+.left-sidebar {
+  width: 300px; /* 左侧栏宽度 - 可调整 */
+  flex-shrink: 0; /* 防止缩小 */
+}
+
+/* 左侧栏卡片样式 */
+.sidebar-card {
   background: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  border-radius: 12px; /* 圆角大小 - 可调整 */
+  padding: 20px; /* 内边距 - 可调整 */
+  margin-bottom: 20px; /* 卡片间距 - 可调整 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 阴影效果 */
 }
 
-/* 上传控件样式 */
-.upload-controls {
+/* 左侧栏标题 */
+.sidebar-title {
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0; /* 下边框样式 */
+  font-size: 18px; /* 字体大小 - 可调整 */
+}
+
+/* ============================================
+   当前用户信息区域
+============================================ */
+.user-info-box {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
-  margin-top: 15px;
+  text-align: center;
+}
+
+/* 用户头像 - 可调整大小 */
+.user-avatar-large {
+  width: 80px; /* 头像宽度 - 可调整 */
+  height: 80px; /* 头像高度 - 可调整 */
+  background: #000000; /* 头像背景色 */
+  color: rgb(255, 247, 247);
+  border-radius: 50%; /* 圆形头像 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px; /* 头像内文字大小 - 可调整 */
+  font-weight: bold;
+  margin-bottom: 15px; /* 下边距 - 可调整 */
+}
+
+.user-details {
   width: 100%;
 }
 
-.upload-btn {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #000000 0%, #e0e0e0 100%);
+.user-details strong {
+  display: block;
+  font-size: 16px; /* 用户名大小 - 可调整 */
+  margin-bottom: 5px;
+}
+
+.user-details span {
+  display: block;
+  color: #666;
+  font-size: 14px; /* 邮箱大小 - 可调整 */
+  margin-bottom: 15px;
+}
+
+/* 登出按钮 */
+.logout-btn-sidebar {
+  width: 100%;
+  padding: 10px; /* 内边距 - 可调整 */
+  background: #ff6b6b;
   color: white;
   border: none;
-  border-radius: 25px;
+  border-radius: 6px; /* 圆角大小 - 可调整 */
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.3s ease;
-  text-align: center;
-  min-width: 200px;
+  transition: background 0.3s ease;
 }
 
-.upload-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+.logout-btn-sidebar:hover {
+  background: #ff5252;
 }
 
-.upload-demo-btn {
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #333;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  text-align: center;
-  min-width: 200px;
+/* ============================================
+   用户列表区域
+============================================ */
+.users-list-compact {
+  max-height: 300px; /* 最大高度，超出滚动 - 可调整 */
+  overflow-y: auto; /* 垂直滚动 */
 }
 
-.upload-demo-btn:hover {
-  background: white;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
-}
-
-.or-text {
-  color: white;
-  font-weight: 500;
-  position: relative;
-  padding: 0 10px;
-}
-
-.or-text::before,
-.or-text::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 50px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.or-text::before {
-  right: 100%;
-}
-
-.or-text::after {
-  left: 100%;
-}
-
-.image-hint {
-  font-size: 0.9em;
-  opacity: 0.9;
-  margin-top: 5px !important;
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .upload-controls {
-    gap: 10px;
-  }
-  
-  .upload-btn,
-  .upload-demo-btn {
-    min-width: 180px;
-    padding: 10px 20px;
-    font-size: 0.9em;
-  }
-}
-
-
-/* 项目管理模块 */
-/* 项目状态标签 */
-.project-status {
+/* 用户项 */
+.user-item {
   display: flex;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 0.8em;
+  align-items: center;
+  padding: 10px 0; /* 内边距 - 可调整 */
+  border-bottom: 1px solid #f0f0f0; /* 分隔线 */
+}
+
+.user-item:last-child {
+  border-bottom: none;
+}
+
+/* 小头像样式 */
+.user-avatar-small {
+  width: 40px; /* 头像宽度 - 可调整 */
+  height: 40px; /* 头像高度 - 可调整 */
+  background: #000000; /* 头像背景色 */
+  color: white;
+  border-radius: 50%; /* 圆形 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 12px; /* 右边距 - 可调整 */
+  flex-shrink: 0; /* 防止压缩 */
+}
+
+.user-info-small {
+  flex: 1;
+  min-width: 0; /* 防止溢出 */
+}
+
+.user-name {
   font-weight: 500;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis; /* 文字溢出显示省略号 */
+  white-space: nowrap;
 }
 
-.project-status.active {
-  background: #e8f5e9;
-  color: #2e7d32;
+.user-email {
+  font-size: 12px; /* 字体大小 - 可调整 */
+  color: #888;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.project-status.completed {
-  background: #f3e5f5;
-  color: #7b1fa2;
+.no-users {
+  color: #999;
+  text-align: center;
+  padding: 20px 0; /* 内边距 - 可调整 */
 }
 
-.project-status.archived {
-  background: #f5f5f5;
-  color: #616161;
+/* ============================================
+   系统状态区域
+============================================ */
+.health-status {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
-/* 项目仪表板 */
-.project-dashboard {
+/* 状态指示器 */
+.status-indicator {
+  width: 12px; /* 指示器大小 - 可调整 */
+  height: 12px; /* 指示器大小 - 可调整 */
+  border-radius: 50%; /* 圆形 */
+  margin-right: 10px; /* 右边距 - 可调整 */
+}
+
+.status-ok {
+  background: #4caf50; /* 正常状态颜色 */
+}
+
+.status-error {
+  background: #ff6b6b; /* 错误状态颜色 */
+}
+
+.links-section {
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0; /* 上边框 */
+}
+
+.health-link {
+  display: inline-block;
+  padding: 8px 16px; /* 内边距 - 可调整 */
+  background: #000000;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px; /* 圆角大小 - 可调整 */
+  font-size: 14px; /* 字体大小 - 可调整 */
+  transition: background 0.3s ease;
+}
+
+.health-link:hover {
+  background: #000000;
+}
+
+/* ============================================
+   右侧主内容区域
+============================================ */
+.right-content {
+  flex: 1; /* 占据剩余空间 */
+  min-width: 0; /* 防止溢出 */
+}
+
+/* 内容头部 */
+.content-header {
   background: white;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
+  border-radius: 12px; /* 圆角大小 - 可调整 */
+  padding: 25px; /* 内边距 - 可调整 */
+  margin-bottom: 20px; /* 下边距 - 可调整 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.project-dashboard h3 {
+.content-header h1 {
+  margin: 0 0 10px 0;
   color: #333;
-  border-bottom: 2px solid #667eea;
-  padding-bottom: 10px;
+}
+
+.content-header p {
+  margin: 0;
+  color: #666;
+}
+
+/* ============================================
+   项目管理区域
+============================================ */
+.projects-section {
+  background: white;
+  border-radius: 12px; /* 圆角大小 - 可调整 */
+  padding: 25px; /* 内边距 - 可调整 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 项目头部区域 */
+.projects-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px; /* 下边距 - 可调整 */
+}
+
+.projects-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+/* 创建项目按钮 */
+.create-project-btn {
+  padding: 12px 24px; /* 内边距 - 可调整 */
+  background: #000000;
+  color: white;
+  border: none;
+  border-radius: 6px; /* 圆角大小 - 可调整 */
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* 图标和文字间距 - 可调整 */
+  transition: background 0.3s ease;
+}
+
+.create-project-btn:hover {
+  background: #5a6fd8;
+}
+
+.create-project-btn span {
+  font-size: 20px; /* 加号大小 - 可调整 */
+}
+
+/* ============================================
+   项目表单容器
+============================================ */
+.project-form-container {
+  background: #f8f9fa;
+  border-radius: 8px; /* 圆角大小 - 可调整 */
+  padding: 20px; /* 内边距 - 可调整 */
+  margin-bottom: 25px; /* 下边距 - 可调整 */
+  border: 1px solid #e9ecef; /* 边框样式 */
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
 
+.form-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.close-form-btn {
+  background: none;
+  border: none;
+  font-size: 24px; /* 关闭按钮大小 - 可调整 */
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 30px; /* 按钮宽度 - 可调整 */
+  height: 30px; /* 按钮高度 - 可调整 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-form-btn:hover {
+  color: #666;
+}
+
+/* ============================================
+   项目卡片网格布局
+============================================ */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* 自适应网格 */
+  gap: 20px; /* 卡片间距 - 可调整 */
+  margin-bottom: 30px; /* 下边距 - 可调整 */
+}
+
+/* 项目卡片 */
+.project-card {
+  background: white;
+  border: 2px solid #f0f0f0; /* 边框样式 */
+  border-radius: 12px; /* 圆角大小 - 可调整 */
+  padding: 20px; /* 内边距 - 可调整 */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.project-card:hover {
+  border-color: #000000;
+  transform: translateY(-2px); /* 悬停上移效果 */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* 悬停阴影 */
+}
+
+.project-card.active {
+  border-color: #000000;
+  background: #f8f9ff; /* 选中状态背景色 */
+}
+
+.project-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+/* 项目头像 */
+.project-avatar {
+  width: 50px; /* 头像宽度 - 可调整 */
+  height: 50px; /* 头像高度 - 可调整 */
+  background: linear-gradient(135deg, #000000 0%, #764ba2 100%); /* 渐变背景 */
+  color: white;
+  border-radius: 50%; /* 圆形 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px; /* 头像内文字大小 - 可调整 */
+  font-weight: bold;
+  margin-right: 15px; /* 右边距 - 可调整 */
+  flex-shrink: 0;
+}
+
+.project-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.project-title h4 {
+  margin: 0 0 5px 0;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis; /* 文字溢出显示省略号 */
+  white-space: nowrap;
+}
+
+/* 项目状态标签 */
+.project-status {
+  display: inline-block;
+  padding: 3px 8px; /* 内边距 - 可调整 */
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 12px; /* 圆角大小 - 可调整 */
+  font-size: 12px; /* 字体大小 - 可调整 */
+  font-weight: 500;
+}
+
+/* 项目操作按钮区域 */
+.project-actions {
+  display: flex;
+  gap: 5px; /* 按钮间距 - 可调整 */
+}
+
+/* 编辑和删除按钮 */
+.edit-btn, .delete-btn {
+  padding: 6px 12px; /* 内边距 - 可调整 */
+  border: none;
+  border-radius: 4px; /* 圆角大小 - 可调整 */
+  cursor: pointer;
+  font-size: 12px; /* 字体大小 - 可调整 */
+  font-weight: 500;
+}
+
+.edit-btn {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.delete-btn {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+/* 项目描述 */
+.project-description {
+  color: #666;
+  font-size: 14px; /* 字体大小 - 可调整 */
+  line-height: 1.5; /* 行高 - 可调整 */
+  margin-bottom: 15px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 最大显示行数 - 可调整 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.project-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px; /* 字体大小 - 可调整 */
+  color: #999;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0; /* 上边框 */
+}
+
+.no-projects {
+  grid-column: 1 / -1; /* 跨所有列 */
+  text-align: center;
+  padding: 40px 20px; /* 内边距 - 可调整 */
+  color: #999;
+}
+
+/* ============================================
+   项目详情区域
+============================================ */
+.project-detail {
+  background: white;
+  border-radius: 12px; /* 圆角大小 - 可调整 */
+  padding: 25px; /* 内边距 - 可调整 */
+  border: 1px solid #e9ecef; /* 边框样式 */
+}
+
+.detail-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0; /* 下边框 */
+}
+
+.detail-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.project-info h4 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.project-description-full {
+  color: #666;
+  line-height: 1.6; /* 行高 - 可调整 */
+  margin-bottom: 25px;
+}
+
+/* ============================================
+   成员管理区域
+============================================ */
+.members-section {
+  margin-top: 25px;
+}
+
+.members-section h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+/* 邀请成员区域 */
+.invite-section {
+  display: flex;
+  gap: 10px; /* 输入框和按钮间距 - 可调整 */
+  margin-bottom: 20px;
+}
+
+.invite-input {
+  flex: 1; /* 占据剩余空间 */
+  padding: 10px 15px; /* 内边距 - 可调整 */
+  border: 1px solid #ddd;
+  border-radius: 6px; /* 圆角大小 - 可调整 */
+  font-size: 14px; /* 字体大小 - 可调整 */
+}
+
+.invite-btn {
+  padding: 10px 20px; /* 内边距 - 可调整 */
+  background: #000000;
+  color: white;
+  border: none;
+  border-radius: 6px; /* 圆角大小 - 可调整 */
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.invite-btn:hover {
+  background: #020202;
+}
+
+/* 成员列表 */
+.members-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 自适应网格 */
+  gap: 15px; /* 成员间距 - 可调整 */
+}
+
+/* 成员项 */
+.member-item {
+  display: flex;
+  align-items: center;
+  padding: 12px; /* 内边距 - 可调整 */
+  background: #f8f9fa;
+  border-radius: 8px; /* 圆角大小 - 可调整 */
+}
+
+.member-avatar {
+  width: 40px; /* 头像宽度 - 可调整 */
+  height: 40px; /* 头像高度 - 可调整 */
+  background: linear-gradient(135deg, #000000 0%, #764ba2 100%); /* 渐变背景 */
+  color: white;
+  border-radius: 50%; /* 圆形 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 12px; /* 右边距 - 可调整 */
+  flex-shrink: 0;
+}
+
+.member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-name {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.member-email {
+  font-size: 12px; /* 字体大小 - 可调整 */
+  color: #666;
+}
+
+/* ============================================
+   响应式设计
+============================================ */
+
+/* 中等屏幕（平板） */
+@media (max-width: 1024px) {
+  .main-content {
+    flex-direction: column; /* 改为垂直布局 */
+  }
+  
+  .left-sidebar {
+    width: 100%; /* 左侧栏占满宽度 */
+  }
+  
+  .sidebar-card {
+    margin-bottom: 15px; /* 减小卡片间距 */
+  }
+}
+
+/* 小屏幕（手机） */
+@media (max-width: 768px) {
+  .image-section {
+    height: 180px; /* 减小高度 */
+  }
+  
+  .upload-controls {
+    flex-direction: column; /* 垂直排列按钮 */
+    gap: 10px; /* 减小间距 */
+  }
+  
+  .projects-grid {
+    grid-template-columns: 1fr; /* 单列布局 */
+  }
+  
+  .projects-header {
+    flex-direction: column; /* 垂直排列 */
+    align-items: flex-start;
+    gap: 15px; /* 增加间距 */
+  }
+  
+  .create-project-btn {
+    width: 100%; /* 全宽按钮 */
+    justify-content: center; /* 居中内容 */
+  }
+}
 /* 响应式调整 */
 @media (max-width: 768px) {
-  .project-dashboard {
-    padding: 15px;
+  .image-section {
+    height: 250px;
+  }
+  
+  .image-controls-top-left {
+    padding: 10px;
+    left: 10px;
+    top: 10px;
+  }
+  
+  .control-btn .text {
+    display: none;
+  }
+  
+  .control-btn {
+    padding: 8px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+  }
+  
+  .image-selector {
+    width: 320px;
+    left: -10px;
+  }
+  
+  .image-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .image-title {
+    font-size: 28px;
+  }
+  
+  .image-subtitle {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-section {
+    height: 200px;
+  }
+  
+  .image-controls-top-left {
+    padding: 8px;
+  }
+  
+  .control-btn {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+  }
+  
+  .image-selector {
+    width: 280px;
+  }
+  
+  .image-title {
+    font-size: 24px;
   }
 }
