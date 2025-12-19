@@ -4,6 +4,7 @@ import './App.css';                                 //3.应用的css的样式文
 import Auth from './Auth';                          //4.Auth组件用于登录注册
 import ProjectForm from './components/ProjectForm'; //5.新的项目管理（模块）组件库
 import { getRandomImage } from './utils/imageUtils';//导入随机图片函数
+import TaskForm from './components/TaskForm';  // 【新增】任务表单组件
 
 //函数的引用
 function App() {
@@ -27,6 +28,30 @@ function App() {
   const [projectMembers, setProjectMembers] = useState([]);  // 【新增】项目成员列表
   const [inviteEmail, setInviteEmail] = useState('');  // 【新增】邀请邮箱
 
+ // 任务看板模块
+const [tasks, setTasks] = useState([]);  // 任务列表
+const [showTaskForm, setShowTaskForm] = useState(false);  // 显示任务表单
+const [editingTask, setEditingTask] = useState(null);  // 正在编辑的任务
+const [taskSearchTerm, setTaskSearchTerm] = useState('');  // 任务搜索关键词
+const [taskFilterPriority, setTaskFilterPriority] = useState('all');  // 任务优先级筛选
+const [taskFilterAssignee, setTaskFilterAssignee] = useState('all');  // 任务分配筛选
+const [draggedTask, setDraggedTask] = useState(null);  // 当前拖拽的任务
+
+// 任务状态列定义
+const taskStatusColumns = [
+  { id: 'todo', title: '待处理', color: '#FF6B6B' },
+  { id: 'in_progress', title: '进行中', color: '#4ECDC4' },
+  { id: 'review', title: '审核中', color: '#FFD166' },
+  { id: 'done', title: '已完成', color: '#06D6A0' }
+];
+
+// 任务优先级选项
+const taskPriorityOptions = [
+  { id: 'low', label: '低', color: '#4CAF50' },
+  { id: 'medium', label: '中', color: '#FF9800' },
+  { id: 'high', label: '高', color: '#F44336' },
+  { id: 'urgent', label: '紧急', color: '#9C27B0' }
+];
 
   //首页图片自定义
   // 初始化随机图片
@@ -160,6 +185,133 @@ const fetchProjects = async () => {
     console.error('获取项目列表失败:', error);
   }
 };
+// 【新增】获取任务列表
+const fetchTasks = async (projectId) => {
+  if (!projectId) return;
+  
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/api/projects/${projectId}/tasks`,
+      { withCredentials: true }
+    );
+    setTasks(response.data);
+  } catch (error) {
+    console.error('获取任务列表失败:', error);
+  }
+};
+
+// 【新增】创建/更新任务
+const handleTaskSubmit = async (taskData) => {
+  if (!activeProjectId) {
+    alert('请先选择一个项目');
+    return;
+  }
+
+  try {
+    const url = editingTask
+      ? `http://localhost:5000/api/projects/${activeProjectId}/tasks/update/${editingTask.id}`
+      : `http://localhost:5000/api/projects/${activeProjectId}/tasks/create`;
+    
+    const method = editingTask ? 'put' : 'post';
+    
+    const response = await axios[method](url, taskData, {
+      withCredentials: true
+    });
+    
+    if (response.data.task) {
+      // 更新任务列表
+      if (editingTask) {
+        setTasks(tasks.map(t => 
+          t.id === response.data.task.id ? response.data.task : t
+        ));
+      } else {
+        setTasks([...tasks, response.data.task]);
+      }
+      
+      // 重置表单
+      setShowTaskForm(false);
+      setEditingTask(null);
+    }
+  } catch (error) {
+    console.error('保存任务失败:', error);
+    alert(error.response?.data?.error || '操作失败');
+  }
+};
+
+// 【新增】删除任务
+const handleDeleteTask = async (taskId) => {
+  if (!window.confirm('确定要删除这个任务吗？')) return;
+  
+  try {
+    await axios.delete(
+      `http://localhost:5000/api/projects/${activeProjectId}/tasks/delete/${taskId}`,
+      { withCredentials: true }
+    );
+    
+    setTasks(tasks.filter(t => t.id !== taskId));
+  } catch (error) {
+    console.error('删除任务失败:', error);
+    alert(error.response?.data?.error || '删除失败');
+  }
+};
+
+// 【新增】拖拽处理函数
+const handleDragStart = (task) => {
+  setDraggedTask(task);
+};
+
+const handleDragOver = (e) => {
+  e.preventDefault();
+};
+
+const handleDrop = async (status) => {
+  if (!draggedTask || draggedTask.status === status) {
+    setDraggedTask(null);
+    return;
+  }
+
+  try {
+    const response = await axios.put(
+      `http://localhost:5000/api/projects/${activeProjectId}/tasks/update/${draggedTask.id}`,
+      { status: status },
+      { withCredentials: true }
+    );
+    
+    // 更新本地状态
+    setTasks(tasks.map(task => 
+      task.id === draggedTask.id ? response.data.task : task
+    ));
+    
+    setDraggedTask(null);
+  } catch (error) {
+    console.error('更新任务状态失败:', error);
+    alert(error.response?.data?.error || '更新失败');
+  }
+};
+
+// 【新增】筛选和搜索任务
+const getFilteredTasks = () => {
+  return tasks.filter(task => {
+    // 搜索筛选
+    const matchesSearch = task.title.toLowerCase().includes(taskSearchTerm.toLowerCase()) ||
+                         task.description.toLowerCase().includes(taskSearchTerm.toLowerCase());
+    
+    // 优先级筛选
+    const matchesPriority = taskFilterPriority === 'all' || task.priority === taskFilterPriority;
+    
+    // 分配者筛选
+    const matchesAssignee = taskFilterAssignee === 'all' || task.assignee_id === parseInt(taskFilterAssignee);
+    
+    return matchesSearch && matchesPriority && matchesAssignee;
+  });
+};
+
+// 【新增】修改handleSelectProject，在选中项目时获取任务
+const handleSelectProject = (projectId) => {
+  setActiveProjectId(projectId);
+  fetchProjectMembers(projectId);
+  fetchTasks(projectId);  // 新增：获取任务
+};
 
 
 // 【新增】创建/更新项目
@@ -248,11 +400,7 @@ const fetchProjectMembers = async (projectId) => {
   }
 };
 
-// 【新增】选中项目
-const handleSelectProject = (projectId) => {
-  setActiveProjectId(projectId);
-  fetchProjectMembers(projectId);
-};
+
 
   // 【新增】获取用户列表
   const fetchUsers = async () => {
@@ -453,7 +601,7 @@ const handleSelectProject = (projectId) => {
         </div>
       </div>
 
-      {/* 右侧主内容区 - 项目管理系统 */}
+      {/* （这一栏计划改成项目公告栏） */}
       <div className="right-content">
         <div className="content-header">
           <h1>项目管理系统</h1>
@@ -464,6 +612,7 @@ const handleSelectProject = (projectId) => {
         <div className="projects-section">
           <div className="projects-header">
             <h2>项目管理</h2>
+            <p>管理您的项目、团队成员和协作任务</p>
             <button 
               onClick={() => { setShowProjectForm(true); setEditingProject(null); }}
               className="create-project-btn"
@@ -568,7 +717,7 @@ const handleSelectProject = (projectId) => {
                       {projects.find(p => p.id === activeProjectId).description}
                     </p>
                   </div>
-                  
+        
                   {/* 成员管理 */}
                   <div className="members-section">
                     <h4>项目成员 ({projectMembers.length}人)</h4>
@@ -603,12 +752,193 @@ const handleSelectProject = (projectId) => {
               )}
             </div>
           )}
+        
         </div>
+         {/* 任务看板模块 */}
+<div className="task-board-section">
+  <div className="task-board-header">
+    <div className="task-board-title">
+      <h3>任务看板</h3>
+      <span className="task-count">任务总数: {getFilteredTasks().length}</span>
+    </div>
+    
+    <div className="task-controls">
+      {/* 搜索框 */}
+      <div className="search-box">
+        <input
+          type="text"
+          placeholder="搜索任务..."
+          value={taskSearchTerm}
+          onChange={(e) => setTaskSearchTerm(e.target.value)}
+          className="search-input"
+        />
+      </div>
+      
+      {/* 筛选器 */}
+      <div className="filter-controls">
+        <select
+          value={taskFilterPriority}
+          onChange={(e) => setTaskFilterPriority(e.target.value)}
+          className="filter-select"
+        >
+          <option value="all">所有优先级</option>
+          {taskPriorityOptions.map(option => (
+            <option key={option.id} value={option.id} style={{ color: option.color }}>
+              {option.label}优先级
+            </option>
+          ))}
+        </select>
+        
+        <select
+          value={taskFilterAssignee}
+          onChange={(e) => setTaskFilterAssignee(e.target.value)}
+          className="filter-select"
+        >
+          <option value="all">所有成员</option>
+          {projectMembers.map(member => (
+            <option key={member.id} value={member.id}>
+              {member.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      
+      {/* 创建任务按钮 */}
+      <button 
+        onClick={() => { setShowTaskForm(true); setEditingTask(null); }}
+        className="create-task-btn"
+      >
+        <span>+</span> 创建任务
+      </button>
+    </div>
+  </div>
+
+  {/* 任务表单 */}
+  {showTaskForm && (
+    <div className="task-form-container">
+      <div className="form-header">
+        <h3>{editingTask ? '编辑任务' : '创建新任务'}</h3>
+        <button 
+          onClick={() => { setShowTaskForm(false); setEditingTask(null); }}
+          className="close-form-btn"
+        >
+          ×
+        </button>
+      </div>
+      <TaskForm 
+        projectId={activeProjectId}
+        projectMembers={projectMembers}
+        task={editingTask}
+        onSubmit={handleTaskSubmit}
+        onCancel={() => {
+          setShowTaskForm(false);
+          setEditingTask(null);
+        }}
+      />
+    </div>
+  )}
+
+  {/* 任务看板列 */}
+  <div className="task-board-columns">
+    {taskStatusColumns.map(column => {
+      const columnTasks = getFilteredTasks().filter(task => task.status === column.id);
+      
+      return (
+        <div 
+          key={column.id}
+          className="task-column"
+          onDragOver={handleDragOver}
+          onDrop={() => handleDrop(column.id)}
+        >
+          <div className="column-header" style={{ borderTopColor: column.color }}>
+            <div className="column-title">
+              <span className="column-color-dot" style={{ backgroundColor: column.color }}></span>
+              {column.title}
+            </div>
+            <span className="column-count">{columnTasks.length}</span>
+          </div>
+          
+          <div className="task-list">
+            {columnTasks.map(task => (
+              <div
+                key={task.id}
+                className="task-card"
+                draggable
+                onDragStart={() => handleDragStart(task)}
+              >
+                <div className="task-header">
+                  <div className="task-priority" style={{ 
+                    backgroundColor: taskPriorityOptions.find(p => p.id === task.priority)?.color || '#ccc'
+                  }}>
+                    {taskPriorityOptions.find(p => p.id === task.priority)?.label || task.priority}
+                  </div>
+                  <div className="task-actions">
+                    <button
+                      onClick={() => {
+                        setEditingTask(task);
+                        setShowTaskForm(true);
+                      }}
+                      className="task-action-btn"
+                      title="编辑"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTask(task.id)}
+                      className="task-action-btn"
+                      title="删除"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="task-content">
+                  <h4 className="task-title">{task.title}</h4>
+                  <p className="task-description">{task.description}</p>
+                </div>
+                
+                <div className="task-footer">
+                  <div className="task-assignee">
+                    {task.assignee_avatar ? (
+                      <div className="assignee-avatar-small">
+                        {task.assignee_name?.charAt(0)}
+                      </div>
+                    ) : (
+                      <span className="unassigned">未分配</span>
+                    )}
+                  </div>
+                  
+                  {task.due_date && (
+                    <div className="task-due-date">
+                      📅 {new Date(task.due_date).toLocaleDateString('zh-CN')}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            
+            {columnTasks.length === 0 && (
+              <div className="empty-column">
+                暂无任务，可拖拽任务到此列
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    })}
+  </div>
+ </div>
       </div>
     </div>
   </div>
 );
 
+
 }
+
+
+
+
 
 export default App;// 导出组件供其他文件使用

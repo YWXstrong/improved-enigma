@@ -14,6 +14,9 @@ import json  # Python内置的JSON处理模块
 # 导入密码哈希工具
 from werkzeug.security import generate_password_hash, check_password_hash  # 用于密码加密和验证
 
+from datetime import datetime, timedelta #用于获取任务日期
+
+
 # 创建Flask应用实例，__name__表示当前模块名
 app = Flask(__name__)
 # 启用CORS，允许所有域名访问（开发环境配置）
@@ -100,6 +103,42 @@ project_members = db.Table('project_members',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
     db.Column('joined_at', db.DateTime, default=datetime.utcnow)
 )
+# 【新增】任务模型
+class Task(db.Model):
+    __tablename__ = 'tasks'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    assignee_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    priority = db.Column(db.String(20), default='medium')  # low, medium, high, urgent
+    status = db.Column(db.String(20), default='todo')  # todo, in_progress, review, done
+    due_date = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 关系
+    project = db.relationship('Project', backref='tasks')
+    assignee = db.relationship('User', backref='assigned_tasks')
+    
+    def to_dict(self):
+        """将任务对象转换为字典"""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'project_id': self.project_id,
+            'assignee_id': self.assignee_id,
+            'assignee_name': self.assignee.name if self.assignee else None,
+            'assignee_avatar': self.assignee.name[0] if self.assignee else None,
+            'priority': self.priority,
+            'status': self.status,
+            'due_date': self.due_date.isoformat() if self.due_date else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+        
 # 【新增】初始化数据库（创建表）
 def init_db():
     with app.app_context():
@@ -176,38 +215,97 @@ def init_db():
         except Exception as e:
             print(f"添加示例数据时出错: {e}")  
             db.session.rollback()
-# 在用户示例数据添加后，添加项目示例数据：
-try:
-    if Project.query.count() == 0:
-        # 获取一些用户作为项目所有者
-        users = User.query.limit(2).all()
         
-        if users:
-            sample_projects = [
-                {
-                    "name": "网站重构项目",
-                    "description": "重构公司官方网站，提升用户体验",
-                    "owner_id": users[0].id,
-                    "status": "active"
-                },
-                {
-                    "name": "移动应用开发",
-                    "description": "开发新一代移动应用",
-                    "owner_id": users[1].id if len(users) > 1 else users[0].id,
-                    "status": "active"
-                }
-            ]
-            
-            for project_data in sample_projects:
-                project = Project(**project_data)
-                # 将所有者添加为成员
-                project.members.append(User.query.get(project_data['owner_id']))
-                db.session.add(project)
-            
-            db.session.commit()
-            print("项目示例数据添加成功")
-except Exception as e:
-    print(f"添加项目示例数据时出错: {e}")
+        # 在用户示例数据添加后，添加项目示例数据：
+        try:
+            if Project.query.count() == 0:
+                # 获取一些用户作为项目所有者
+                users = User.query.limit(2).all()
+                
+                if users:
+                    sample_projects = [
+                        {
+                            "name": "网站重构项目",
+                            "description": "重构公司官方网站，提升用户体验",
+                            "owner_id": users[0].id,
+                            "status": "active"
+                        },
+                        {
+                            "name": "移动应用开发",
+                            "description": "开发新一代移动应用",
+                            "owner_id": users[1].id if len(users) > 1 else users[0].id,
+                            "status": "active"
+                        }
+                    ]
+                    
+                    for project_data in sample_projects:
+                        project = Project(**project_data)
+                        # 将所有者添加为成员
+                        project.members.append(User.query.get(project_data['owner_id']))
+                        db.session.add(project)
+                    
+                    db.session.commit()
+                    print("项目示例数据添加成功")
+        except Exception as e:
+            print(f"添加项目示例数据时出错: {e}")
+            db.session.rollback()
+        
+        # 【新增】初始化数据库时添加任务示例数据：
+        try:
+            if Task.query.count() == 0:
+                # 获取项目和用户
+                projects = Project.query.all()
+                users = User.query.all()
+                
+                if projects and users:
+                    sample_tasks = [
+                        {
+                            "title": "设计登录页面",
+                            "description": "设计用户登录界面，包括表单验证和响应式布局",
+                            "project_id": projects[0].id,
+                            "assignee_id": users[0].id if users else None,
+                            "priority": "high",
+                            "status": "todo",
+                            "due_date": datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=7)
+                        },
+                        {
+                            "title": "后端API开发",
+                            "description": "开发用户管理相关的RESTful API接口",
+                            "project_id": projects[0].id,
+                            "assignee_id": users[1].id if len(users) > 1 else None,
+                            "priority": "medium",
+                            "status": "in_progress",
+                            "due_date": datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=5)
+                        },
+                        {
+                            "title": "数据库设计",
+                            "description": "设计项目数据库结构，包括表和关系",
+                            "project_id": projects[1].id if len(projects) > 1 else projects[0].id,
+                            "assignee_id": users[0].id if users else None,
+                            "priority": "urgent",
+                            "status": "review",
+                            "due_date": datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=3)
+                        },
+                        {
+                            "title": "测试用例编写",
+                            "description": "编写单元测试和集成测试用例",
+                            "project_id": projects[1].id if len(projects) > 1 else projects[0].id,
+                            "assignee_id": users[1].id if len(users) > 1 else None,
+                            "priority": "low",
+                            "status": "done",
+                            "due_date": datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
+                        }
+                    ]
+                    
+                    for task_data in sample_tasks:
+                        task = Task(**task_data)
+                        db.session.add(task)
+                    
+                    db.session.commit()
+                    print("任务示例数据添加成功")
+        except Exception as e:
+            print(f"添加任务示例数据时出错: {e}")
+            db.session.rollback()
     
 # 【新增】数据库配置结束
 
@@ -654,6 +752,170 @@ def get_project_members(project_id):
         
         return jsonify([user.to_dict() for user in project.members])
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    
+# 【新增】获取项目任务列表
+@app.route('/api/projects/<int:project_id>/tasks')
+def get_project_tasks(project_id):
+    """获取项目的所有任务"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "请先登录"}), 401
+        
+        # 检查用户是否有权限访问该项目
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"error": "项目不存在"}), 404
+        
+        # 检查用户是否是项目成员
+        user = User.query.get(user_id)
+        if user not in project.members and project.owner_id != user_id:
+            return jsonify({"error": "无权访问此项目"}), 403
+        
+        tasks = Task.query.filter_by(project_id=project_id).all()
+        return jsonify([task.to_dict() for task in tasks])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# 【新增】创建任务
+@app.route('/api/projects/<int:project_id>/tasks/create', methods=['POST'])
+def create_task(project_id):
+    """创建新任务"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "请先登录"}), 401
+        
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"error": "项目不存在"}), 404
+        
+        # 检查用户是否是项目成员
+        user = User.query.get(user_id)
+        if user not in project.members and project.owner_id != user_id:
+            return jsonify({"error": "无权在此项目创建任务"}), 403
+        
+        data = request.get_json()
+        if not data or 'title' not in data:
+            return jsonify({"error": "任务标题不能为空"}), 400
+        
+        # 处理截止日期
+        due_date = None
+        if 'due_date' in data and data['due_date']:
+            try:
+                due_date = datetime.fromisoformat(data['due_date'].replace('Z', '+00:00'))
+            except:
+                try:
+                    due_date = datetime.strptime(data['due_date'], '%Y-%m-%d')
+                except:
+                    pass
+        
+        # 创建任务
+        new_task = Task(
+            title=data['title'],
+            description=data.get('description', ''),
+            project_id=project_id,
+            assignee_id=data.get('assignee_id'),
+            priority=data.get('priority', 'medium'),
+            status=data.get('status', 'todo'),
+            due_date=due_date
+        )
+        
+        db.session.add(new_task)
+        db.session.commit()
+        
+        return jsonify({
+            "message": "任务创建成功",
+            "task": new_task.to_dict()
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# 【新增】更新任务
+@app.route('/api/projects/<int:project_id>/tasks/update/<int:task_id>', methods=['PUT'])
+def update_task(project_id, task_id):
+    """更新任务信息"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "请先登录"}), 401
+        
+        task = Task.query.get(task_id)
+        if not task or task.project_id != project_id:
+            return jsonify({"error": "任务不存在"}), 404
+        
+        # 检查用户是否是项目成员
+        user = User.query.get(user_id)
+        project = Project.query.get(project_id)
+        if user not in project.members and project.owner_id != user_id:
+            return jsonify({"error": "无权修改此任务"}), 403
+        
+        data = request.get_json()
+        
+        # 更新任务信息
+        if 'title' in data:
+            task.title = data['title']
+        if 'description' in data:
+            task.description = data['description']
+        if 'assignee_id' in data:
+            task.assignee_id = data['assignee_id']
+        if 'priority' in data:
+            task.priority = data['priority']
+        if 'status' in data:
+            task.status = data['status']
+        if 'due_date' in data:
+            if data['due_date']:
+                try:
+                    task.due_date = datetime.fromisoformat(data['due_date'].replace('Z', '+00:00'))
+                except:
+                    try:
+                        task.due_date = datetime.strptime(data['due_date'], '%Y-%m-%d')
+                    except:
+                        task.due_date = None
+            else:
+                task.due_date = None
+        
+        task.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({
+            "message": "任务更新成功",
+            "task": task.to_dict()
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# 【新增】删除任务
+@app.route('/api/projects/<int:project_id>/tasks/delete/<int:task_id>', methods=['DELETE'])
+def delete_task(project_id, task_id):
+    """删除任务"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "请先登录"}), 401
+        
+        task = Task.query.get(task_id)
+        if not task or task.project_id != project_id:
+            return jsonify({"error": "任务不存在"}), 404
+        
+        # 检查权限（项目创建者或任务创建者可以删除）
+        user = User.query.get(user_id)
+        project = Project.query.get(project_id)
+        
+        # 只有项目创建者可以删除任务
+        if project.owner_id != user_id:
+            return jsonify({"error": "无权删除此任务"}), 403
+        
+        db.session.delete(task)
+        db.session.commit()
+        
+        return jsonify({"message": "任务删除成功"})
+    except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
     
 # 程序入口点：当直接运行此脚本时启动Flask开发服务器

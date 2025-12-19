@@ -22,6 +22,5 @@ def init_database():
         else:
             print(f"数据库中已有 {User.query.count()} 条用户记录")
             
-
 if __name__ == '__main__':
     init_database()
