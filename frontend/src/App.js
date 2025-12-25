@@ -29,29 +29,27 @@ function App() {
   const [inviteEmail, setInviteEmail] = useState('');  // 【新增】邀请邮箱
 
  // 任务看板模块
-const [tasks, setTasks] = useState([]);  // 任务列表
-const [showTaskForm, setShowTaskForm] = useState(false);  // 显示任务表单
-const [editingTask, setEditingTask] = useState(null);  // 正在编辑的任务
-const [taskSearchTerm, setTaskSearchTerm] = useState('');  // 任务搜索关键词
-const [taskFilterPriority, setTaskFilterPriority] = useState('all');  // 任务优先级筛选
-const [taskFilterAssignee, setTaskFilterAssignee] = useState('all');  // 任务分配筛选
-const [draggedTask, setDraggedTask] = useState(null);  // 当前拖拽的任务
-
-// 任务状态列定义
-const taskStatusColumns = [
+  const [tasks, setTasks] = useState([]);  // 任务列表
+  const [showTaskForm, setShowTaskForm] = useState(false);  // 显示任务表单
+  const [editingTask, setEditingTask] = useState(null);  // 正在编辑的任务
+  const [taskSearchTerm, setTaskSearchTerm] = useState('');  // 任务搜索关键词
+  const [taskFilterPriority, setTaskFilterPriority] = useState('all');  // 任务优先级筛选
+  const [taskFilterAssignee, setTaskFilterAssignee] = useState('all');  // 任务分配筛选
+  const [draggedTask, setDraggedTask] = useState(null);  // 当前拖拽的任务
+  // 任务状态列定义
+  const taskStatusColumns = [
   { id: 'todo', title: '待处理', color: '#FF6B6B' },
   { id: 'in_progress', title: '进行中', color: '#4ECDC4' },
   { id: 'review', title: '审核中', color: '#FFD166' },
   { id: 'done', title: '已完成', color: '#06D6A0' }
-];
-
-// 任务优先级选项
-const taskPriorityOptions = [
+  ];
+  // 任务优先级选项
+  const taskPriorityOptions = [
   { id: 'low', label: '低', color: '#4CAF50' },
   { id: 'medium', label: '中', color: '#FF9800' },
   { id: 'high', label: '高', color: '#F44336' },
   { id: 'urgent', label: '紧急', color: '#9C27B0' }
-];
+  ];
 
   //首页图片自定义
   // 初始化随机图片

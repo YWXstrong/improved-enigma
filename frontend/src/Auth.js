@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './Auth.css';
+import backgroundImage from './images/skyscrapers_buildings_sky_1324943_1920x1080.jpg';
 
 /**
  * 登录/注册组件
@@ -16,6 +17,7 @@ function Auth({ onLoginSuccess }) {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  
 
   // 处理输入框变化
   const handleChange = (e) => {
@@ -65,10 +67,25 @@ function Auth({ onLoginSuccess }) {
     setFormData({ name: '', email: '', password: '' });
   };
 
+// 创建容器样式对象
+  const containerStyle = {
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'right',
+    padding: '20px',
+    backgroundImage: `url(${backgroundImage})`,
+    backgroundPosition: 'center center',
+    backgroundSize: 'cover',
+    backgroundAttachment: 'fixed',
+    backgroundRepeat: 'no-repeat',
+    position: 'relative',
+  };
+  
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h2>{isLogin ? '团队协作模型-用户登录' : '用户注册'}</h2>
+        <h2>{isLogin ? '团队协作平台' : '用户注册'}</h2>
         
         <form onSubmit={handleSubmit}>
           {/* 注册模式显示姓名输入框 */}
@@ -137,6 +154,7 @@ function Auth({ onLoginSuccess }) {
       </div>
     </div>
   );
+  
 }
 
 export default Auth;

@@ -123,19 +123,19 @@ if 'password_hash' not in columns:
 ## 安全考虑
 
 ### 5.1 密码安全
-- ✅ 密码使用 PBKDF2 加密存储
-- ✅ 密码不会以明文形式传输或存储
-- ✅ 密码验证失败时返回通用错误信息（防止用户枚举）
+-  密码使用 PBKDF2 加密存储
+-  密码不会以明文形式传输或存储
+-  密码验证失败时返回通用错误信息（防止用户枚举）
 
 ### 5.2 Session 安全
-- ✅ 使用 `SECRET_KEY` 签名 session cookie
-- ✅ 支持 CORS credentials（`supports_credentials=True`）
-- ✅ 登出时清除所有 session 数据
+-  使用 `SECRET_KEY` 签名 session cookie
+-  支持 CORS credentials（`supports_credentials=True`）
+-  登出时清除所有 session 数据
 
 ### 5.3 输入验证
-- ✅ 前端：HTML5 表单验证（required, minLength, type="email"）
-- ✅ 后端：检查必要字段是否存在
-- ✅ 邮箱唯一性检查
+- 前端：HTML5 表单验证（required, minLength, type="email"）
+- 后端：检查必要字段是否存在
+- 邮箱唯一性检查
 
 ## 六、测试账号
 
