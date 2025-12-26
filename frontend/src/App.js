@@ -50,7 +50,96 @@ function App() {
   { id: 'high', label: '高', color: '#F44336' },
   { id: 'urgent', label: '紧急', color: '#9C27B0' }
   ];
+ //公告栏模块（项目管理系统标题改的）
+ // 在App.js的useState部分添加公告相关状态
+const [announcements, setAnnouncements] = useState([
+  {
+    id: 1,
+    title: '系统维护通知',
+    content: '本周六凌晨2:00-4:00将进行系统维护，期间服务将短暂不可用。',
+    author: '管理员',
+    date: '2024-01-15',
+    priority: 'high'
+  },
+  {
+    id: 2,
+    title: '新功能上线',
+    content: '任务看板功能已正式上线，欢迎团队成员体验并提供反馈。',
+    author: '产品部',
+    date: '2025-12-26',
+    priority: 'medium'
+  },
+  {
+    id: 3,
+    title: '春节放假安排',
+    content: '2月9日至2月17日放假，2月18日正常上班。请大家提前安排好工作。',
+    author: '人事部',
+    date: '2024-01-13',
+    priority: 'high'
+  }
+]);
+const [showAnnouncementForm, setShowAnnouncementForm] = useState(false);
+const [editingAnnouncement, setEditingAnnouncement] = useState(null);
+const [newAnnouncement, setNewAnnouncement] = useState({
+  title: '',
+  content: '',
+  priority: 'medium'
+});
 
+// 添加公告处理函数
+const handleAnnouncementSubmit = () => {
+  if (!newAnnouncement.title.trim() || !newAnnouncement.content.trim()) {
+    alert('请填写完整的公告信息');
+    return;
+  }
+
+  if (editingAnnouncement) {
+    // 编辑现有公告
+    setAnnouncements(announcements.map(ann => 
+      ann.id === editingAnnouncement.id 
+        ? { 
+            ...ann, 
+            title: newAnnouncement.title,
+            content: newAnnouncement.content,
+            priority: newAnnouncement.priority,
+            date: new Date().toISOString().split('T')[0]
+          }
+        : ann
+    ));
+  } else {
+    // 添加新公告
+    const newAnn = {
+      id: announcements.length + 1,
+      title: newAnnouncement.title,
+      content: newAnnouncement.content,
+      author: currentUser?.name || '管理员',
+      date: new Date().toISOString().split('T')[0],
+      priority: newAnnouncement.priority
+    };
+    setAnnouncements([newAnn, ...announcements]);
+  }
+
+  // 重置表单
+  setNewAnnouncement({ title: '', content: '', priority: 'medium' });
+  setEditingAnnouncement(null);
+  setShowAnnouncementForm(false);
+};
+
+const handleDeleteAnnouncement = (id) => {
+  if (window.confirm('确定要删除这条公告吗？')) {
+    setAnnouncements(announcements.filter(ann => ann.id !== id));
+  }
+};
+
+const handleEditAnnouncement = (announcement) => {
+  setEditingAnnouncement(announcement);
+  setNewAnnouncement({
+    title: announcement.title,
+    content: announcement.content,
+    priority: announcement.priority
+  });
+  setShowAnnouncementForm(true);
+};
   //首页图片自定义
   // 初始化随机图片
   useEffect(() => {
@@ -599,12 +688,146 @@ const fetchProjectMembers = async (projectId) => {
         </div>
       </div>
 
-      {/* （这一栏计划改成项目公告栏） */}
-      <div className="right-content">
-        <div className="content-header">
-          <h1>项目管理系统</h1>
-          <p>管理您的项目、团队成员和协作任务</p>
+     {/* （这一栏计划改成项目公告栏） */}
+<div className="right-content">
+  {/* 公告栏 */}
+  <div className="announcement-board">
+    <div className="announcement-header">
+      <div className="announcement-title-section">
+        <h2>项目公告</h2>
+        <span className="announcement-count">共 {announcements.length} 条公告</span>
+      </div>
+      <button 
+        className="create-announcement-btn"
+        onClick={() => {
+          setShowAnnouncementForm(true);
+          setEditingAnnouncement(null);
+          setNewAnnouncement({ title: '', content: '', priority: 'medium' });
+        }}
+      >
+        <span>+</span> 发布公告
+      </button>
+    </div>
+
+    {/* 公告表单 */}
+    {showAnnouncementForm && (
+      <div className="announcement-form-container">
+        <div className="form-header">
+          <h3>{editingAnnouncement ? '编辑公告' : '发布新公告'}</h3>
+          <button 
+            onClick={() => {
+              setShowAnnouncementForm(false);
+              setEditingAnnouncement(null);
+              setNewAnnouncement({ title: '', content: '', priority: 'medium' });
+            }}
+            className="close-form-btn"
+          >
+            ×
+          </button>
         </div>
+        <div className="announcement-form">
+          <div className="form-group">
+            <label>公告标题</label>
+            <input
+              type="text"
+              placeholder="请输入公告标题"
+              value={newAnnouncement.title}
+              onChange={(e) => setNewAnnouncement({...newAnnouncement, title: e.target.value})}
+              className="announcement-input"
+            />
+          </div>
+          <div className="form-group">
+            <label>公告内容</label>
+            <textarea
+              placeholder="请输入公告内容"
+              value={newAnnouncement.content}
+              onChange={(e) => setNewAnnouncement({...newAnnouncement, content: e.target.value})}
+              className="announcement-textarea"
+              rows="4"
+            />
+          </div>
+          <div className="form-group">
+            <label>优先级</label>
+            <select
+              value={newAnnouncement.priority}
+              onChange={(e) => setNewAnnouncement({...newAnnouncement, priority: e.target.value})}
+              className="announcement-select"
+            >
+              <option value="high">高优先级</option>
+              <option value="medium">中优先级</option>
+              <option value="low">低优先级</option>
+            </select>
+          </div>
+          <div className="announcement-form-actions">
+            <button
+              onClick={() => {
+                setShowAnnouncementForm(false);
+                setEditingAnnouncement(null);
+                setNewAnnouncement({ title: '', content: '', priority: 'medium' });
+              }}
+              className="cancel-btn"
+            >
+              取消
+            </button>
+            <button
+              onClick={handleAnnouncementSubmit}
+              className="submit-btn"
+            >
+              {editingAnnouncement ? '更新公告' : '发布公告'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* 公告列表 */}
+    <div className="announcement-list">
+      {announcements.length > 0 ? (
+        announcements.map(announcement => (
+          <div 
+            key={announcement.id} 
+            className={`announcement-item ${announcement.priority === 'high' ? 'priority-high' : announcement.priority === 'medium' ? 'priority-medium' : 'priority-low'}`}
+          >
+            <div className="announcement-item-header">
+              <div className="announcement-item-title">
+                <h4>{announcement.title}</h4>
+                <span className={`announcement-priority ${announcement.priority}`}>
+                  {announcement.priority === 'high' ? '重要' : announcement.priority === 'medium' ? '一般' : '普通'}
+                </span>
+              </div>
+              <div className="announcement-item-actions">
+                <button
+                  onClick={() => handleEditAnnouncement(announcement)}
+                  className="edit-announcement-btn"
+                  title="编辑"
+                >
+                  编辑
+                </button>
+                <button
+                  onClick={() => handleDeleteAnnouncement(announcement.id)}
+                  className="delete-announcement-btn"
+                  title="删除"
+                >
+                  删除
+                </button>
+              </div>
+            </div>
+            <div className="announcement-item-content">
+              <p>{announcement.content}</p>
+            </div>
+            <div className="announcement-item-footer">
+              <span className="announcement-author">发布人: {announcement.author}</span>
+              <span className="announcement-date">发布时间: {announcement.date}</span>
+            </div>
+          </div>
+        ))
+      ) : (
+        <div className="no-announcements">
+          <p>暂无公告，点击"发布公告"添加第一条公告</p>
+        </div>
+      )}
+    </div>
+  </div>
 
         {/* 项目操作区域 */}
         <div className="projects-section">
