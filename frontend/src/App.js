@@ -140,6 +140,123 @@ const handleEditAnnouncement = (announcement) => {
   });
   setShowAnnouncementForm(true);
 };
+
+//评论模块
+const [comments, setComments] = useState([
+]);
+
+const [showCommentForm, setShowCommentForm] = useState(false);
+const [newComment, setNewComment] = useState('');
+const [replyingTo, setReplyingTo] = useState(null);
+const [replyContent, setReplyContent] = useState('');
+
+// 添加评论处理函数
+const handleSubmitComment = () => {
+  if (!newComment.trim()) {
+    alert('请输入评论内容');
+    return;
+  }
+
+  const newCommentObj = {
+    id: comments.length + 1,
+    content: newComment,
+    author: currentUser?.name || '匿名用户',
+    authorAvatar: currentUser?.name?.charAt(0) || 'U',
+    timestamp: new Date().toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    }),
+    likes: 0,
+    replies: []
+  };
+
+  setComments([newCommentObj, ...comments]);
+  setNewComment('');
+  setShowCommentForm(false);
+};
+
+const handleSubmitReply = (commentId) => {
+  if (!replyContent.trim()) {
+    alert('请输入回复内容');
+    return;
+  }
+
+  const newReply = {
+    id: Date.now(),
+    content: replyContent,
+    author: currentUser?.name || '匿名用户',
+    authorAvatar: currentUser?.name?.charAt(0) || 'U',
+    timestamp: new Date().toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    }),
+    likes: 0
+  };
+
+  setComments(comments.map(comment => {
+    if (comment.id === commentId) {
+      return {
+        ...comment,
+        replies: [...comment.replies, newReply]
+      };
+    }
+    return comment;
+  }));
+
+  setReplyContent('');
+  setReplyingTo(null);
+};
+
+const handleLikeComment = (commentId, isReply = false, parentId = null) => {
+  if (isReply && parentId) {
+    setComments(comments.map(comment => {
+      if (comment.id === parentId) {
+        return {
+          ...comment,
+          replies: comment.replies.map(reply => {
+            if (reply.id === commentId) {
+              return { ...reply, likes: reply.likes + 1 };
+            }
+            return reply;
+          })
+        };
+      }
+      return comment;
+    }));
+  } else {
+    setComments(comments.map(comment => {
+      if (comment.id === commentId) {
+        return { ...comment, likes: comment.likes + 1 };
+      }
+      return comment;
+    }));
+  }
+};
+
+const handleDeleteComment = (commentId, isReply = false, parentId = null) => {
+  if (!window.confirm('确定要删除这条评论吗？')) return;
+
+  if (isReply && parentId) {
+    setComments(comments.map(comment => {
+      if (comment.id === parentId) {
+        return {
+          ...comment,
+          replies: comment.replies.filter(reply => reply.id !== commentId)
+        };
+      }
+      return comment;
+    }));
+  } else {
+    setComments(comments.filter(comment => comment.id !== commentId));
+  }
+};
+
   //首页图片自定义
   // 初始化随机图片
   useEffect(() => {
@@ -667,6 +784,189 @@ const fetchProjectMembers = async (projectId) => {
             )}
           </div>
         </div>
+
+
+        {/* 评论系统 */}
+<div className="sidebar-card">
+  <h3 className="sidebar-title">评论区 ({comments.length})</h3>
+  <div className="comments-section">
+    <div className="comments-header">
+      <div className="comments-title-section">
+        <span className="comments-count">共 {comments.length} 条评论</span>
+      </div>
+      <button 
+        className="new-comment-btn"
+        onClick={() => setShowCommentForm(true)}
+      >
+        <span>+</span> 发表评论
+      </button>
+    </div>
+
+    {/* 评论表单 */}
+    {showCommentForm && (
+      <div className="comment-form-container">
+        <div className="form-header">
+          <h3>发表评论</h3>
+          <button 
+            onClick={() => setShowCommentForm(false)}
+            className="close-form-btn"
+          >
+            ×
+          </button>
+        </div>
+        <div className="comment-form">
+          <textarea
+            placeholder="请输入您的评论..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            className="comment-textarea"
+            rows="4"
+          />
+          <div className="comment-form-actions">
+            <button
+              onClick={() => setShowCommentForm(false)}
+              className="cancel-btn"
+            >
+              取消
+            </button>
+            <button
+              onClick={handleSubmitComment}
+              className="submit-btn"
+            >
+              发布评论
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* 评论列表 */}
+    <div className="comments-list">
+      {comments.length > 0 ? (
+        comments.map(comment => (
+          <div key={comment.id} className="comment-item">
+            <div className="comment-header">
+              <div className="comment-author">
+                <div className="comment-avatar">
+                  {comment.authorAvatar}
+                </div>
+                <div className="comment-author-info">
+                  <div className="comment-author-name">{comment.author}</div>
+                  <div className="comment-timestamp">{comment.timestamp}</div>
+                </div>
+              </div>
+              <div className="comment-actions">
+                <button
+                  onClick={() => handleLikeComment(comment.id)}
+                  className="comment-action-btn like-btn"
+                  title="点赞"
+                >
+                  <span>👍</span> {comment.likes > 0 && comment.likes}
+                </button>
+                <button
+                  onClick={() => setReplyingTo(comment.id)}
+                  className="comment-action-btn reply-btn"
+                  title="回复"
+                >
+                  回复
+                </button>
+                {(currentUser?.name === comment.author || currentUser?.name === '管理员') && (
+                  <button
+                    onClick={() => handleDeleteComment(comment.id)}
+                    className="comment-action-btn delete-btn"
+                    title="删除"
+                  >
+                    删除
+                  </button>
+                )}
+              </div>
+            </div>
+            
+            <div className="comment-content">
+              {comment.content}
+            </div>
+
+            {/* 回复表单 */}
+            {replyingTo === comment.id && (
+              <div className="reply-form-container">
+                <textarea
+                  placeholder={`回复 ${comment.author}...`}
+                  value={replyContent}
+                  onChange={(e) => setReplyContent(e.target.value)}
+                  className="reply-textarea"
+                  rows="3"
+                />
+                <div className="reply-form-actions">
+                  <button
+                    onClick={() => {
+                      setReplyingTo(null);
+                      setReplyContent('');
+                    }}
+                    className="reply-cancel-btn"
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={() => handleSubmitReply(comment.id)}
+                    className="reply-submit-btn"
+                  >
+                    提交回复
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 回复列表 */}
+            {comment.replies && comment.replies.length > 0 && (
+              <div className="replies-list">
+                {comment.replies.map(reply => (
+                  <div key={reply.id} className="reply-item">
+                    <div className="reply-header">
+                      <div className="reply-author">
+                        <div className="reply-avatar">
+                          {reply.authorAvatar}
+                        </div>
+                        <div>
+                          <div className="reply-author-name">{reply.author}</div>
+                          <div className="reply-timestamp">{reply.timestamp}</div>
+                        </div>
+                      </div>
+                      <div className="reply-actions">
+                        <button
+                          onClick={() => handleLikeComment(reply.id, true, comment.id)}
+                          className="reply-action-btn"
+                          title="点赞"
+                        >
+                          <span>👍</span> {reply.likes > 0 && reply.likes}
+                        </button>
+                        {(currentUser?.name === reply.author || currentUser?.name === '管理员') && (
+                          <button
+                            onClick={() => handleDeleteComment(reply.id, true, comment.id)}
+                            className="reply-action-btn"
+                            title="删除"
+                          >
+                            删除
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="reply-content">
+                      {reply.content}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))
+      ) : (
+        <div className="no-comments">
+          <p>暂无评论，点击"发表评论"添加第一条评论</p>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
 
         {/* 后端健康检查 */}
         <div className="sidebar-card">

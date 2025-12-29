@@ -66,6 +66,120 @@ class User(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
         
+        
+        
+     #评论系统
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=True)  # 用于回复
+    likes = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 关系
+    user = db.relationship('User', backref='comments')
+    parent = db.relationship('Comment', remote_side=[id], backref='replies')
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'content': self.content,
+            'user_id': self.user_id,
+            'user_name': self.user.name if self.user else None,
+            'user_avatar': self.user.name[0] if self.user else None,
+            'parent_id': self.parent_id,
+            'likes': self.likes,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'replies': [reply.to_dict() for reply in self.replies] if self.replies else []
+        }
+         # API路由
+@app.route('/api/comments', methods=['GET'])
+def get_comments():
+    """获取所有评论（顶级评论）"""
+    try:
+        comments = Comment.query.filter_by(parent_id=None).order_by(Comment.created_at.desc()).all()
+        return jsonify([comment.to_dict() for comment in comments])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/comments', methods=['POST'])
+def create_comment():
+    """创建评论"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "请先登录"}), 401
+        
+        data = request.get_json()
+        if not data or 'content' not in data:
+            return jsonify({"error": "评论内容不能为空"}), 400
+        
+        new_comment = Comment(
+            content=data['content'],
+            user_id=user_id,
+            parent_id=data.get('parent_id')
+        )
+        
+        db.session.add(new_comment)
+        db.session.commit()
+        
+        return jsonify({
+            "message": "评论发布成功",
+            "comment": new_comment.to_dict()
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/comments/<int:comment_id>/like', methods=['POST'])
+def like_comment(comment_id):
+    """点赞评论"""
+    try:
+        comment = Comment.query.get(comment_id)
+        if not comment:
+            return jsonify({"error": "评论不存在"}), 404
+        
+        comment.likes += 1
+        db.session.commit()
+        
+        return jsonify({
+            "message": "点赞成功",
+            "likes": comment.likes
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/comments/<int:comment_id>', methods=['DELETE'])
+def delete_comment(comment_id):
+    """删除评论"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "请先登录"}), 401
+        
+        comment = Comment.query.get(comment_id)
+        if not comment:
+            return jsonify({"error": "评论不存在"}), 404
+        
+        # 检查权限（只有评论作者或管理员可以删除）
+        user = User.query.get(user_id)
+        if comment.user_id != user_id and user.name != '管理员':
+            return jsonify({"error": "无权删除此评论"}), 403
+        
+        db.session.delete(comment)
+        db.session.commit()
+        
+        return jsonify({"message": "评论删除成功"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+     
      
       # 项目管理模块函数定义
 class Project(db.Model):
