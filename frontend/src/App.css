@@ -6,6 +6,231 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #edeef0 0%, #615f5f 100%); /* 主背景渐变 */
 }
+/* ============================================
+   顶部导航栏样式
+============================================ */
+
+.top-navbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 0 0 0 12px;
+  padding: 10px 20px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 5px;
+}
+
+.nav-list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 10px;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  color: #333;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #000000;
+}
+
+.nav-link.active {
+  background: #000000;
+  color: white;
+}
+
+.nav-link.active:hover {
+  background: #333;
+}
+
+.nav-icon {
+  font-size: 16px;
+}
+
+.nav-text {
+  white-space: nowrap;
+}
+
+/* 导航栏响应式调整 */
+@media (max-width: 768px) {
+  .top-navbar {
+    padding: 8px 15px;
+  }
+  
+  .nav-text {
+    display: none;
+  }
+  
+  .nav-link {
+    padding: 10px;
+    border-radius: 50%;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-navbar {
+    padding: 6px 12px;
+  }
+  
+  .nav-link {
+    padding: 8px;
+  }
+}
+
+/* ============================================
+   页面内容样式
+============================================ */
+
+.page-content {
+  padding-top: 60px; /* 为固定导航栏留出空间 */
+}
+
+/* 隐藏所有页面 */
+.page {
+  display: none;
+}
+
+/* 显示当前页面 */
+.page.active {
+  display: block;
+}
+
+/* ============================================
+   用户中心页面样式
+============================================ */
+
+.user-center-page {
+  max-width: 4000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.user-center-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.user-center-card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-center-title {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* ============================================
+   系统健康页面样式
+============================================ */
+
+/* 在用户中心页面样式中添加以下样式，用于容纳系统健康检查内容 */
+
+.user-center-card .health-status-large {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  padding: 20px;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.user-center-card .status-indicator-large {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.user-center-card .health-message {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+}
+
+.user-center-card .health-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.user-center-card .health-detail-item {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.user-center-card .health-detail-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.user-center-card .health-detail-value {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.user-center-card .health-actions {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.user-center-card .health-action-btn {
+  padding: 10px 20px;
+  background: #000000;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.user-center-card .health-action-btn:hover {
+  background: #333;
+}
+/* ============================================
+   评论页面样式
+============================================ */
+
+.comments-page {
+  max-width: 4000px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
 /* ============================================
    顶部图片区域新样式
@@ -759,7 +984,7 @@
 .member-avatar {
   width: 40px; /* 头像宽度 - 可调整 */
   height: 40px; /* 头像高度 - 可调整 */
-  background: linear-gradient(135deg, #000000 0%, #764ba2 100%); /* 渐变背景 */
+  background: linear-gradient(135deg, #000000 0%, #000000 100%); /* 渐变背景 */
   color: white;
   border-radius: 50%; /* 圆形 */
   display: flex;
@@ -1668,7 +1893,7 @@
 .comment-form-container {
   background: #f8f9fa;
   border-radius: 8px;
-  padding: 20px;
+  padding: 40px;
   margin-bottom: 20px;
   border: 1px solid #e9ecef;
 }
@@ -1679,7 +1904,7 @@
 
 .comment-textarea {
   width: 100%;
-  padding: 12px 15px;
+  padding: 1px 15px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 14px;
@@ -1768,7 +1993,7 @@
 .comment-avatar {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #000000 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -1931,7 +2156,7 @@
 .reply-avatar {
   width: 28px;
   height: 28px;
-  background: linear-gradient(135deg, #000000 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border-radius: 50%;
   display: flex;
