@@ -5,6 +5,7 @@ import Auth from './Auth';                          //4.Auth组件用于登录�
 import ProjectForm from './components/ProjectForm'; //5.项目管理组件
 import { getRandomImage } from './utils/imageUtils';//导入随机图片函数
 import TaskForm from './components/TaskForm';       //任务表单组件
+import ChartDashboard from './components/ChartDashboard';
 
 //函数的引用
 function App() {
@@ -646,6 +647,8 @@ function App() {
     return <Auth onLoginSuccess={handleLoginSuccess} />;
   }
 
+
+
   // 渲染导航栏和多页面内容
   return (
     <div className="app-container">
@@ -747,7 +750,7 @@ function App() {
         className={`nav-link ${activePage === 'home' ? 'active' : ''}`}
         onClick={() => setActivePage('home')}
       >
-       
+
         <span className="nav-text">首页</span>
       </button>
     </li>
@@ -756,17 +759,25 @@ function App() {
         className={`nav-link ${activePage === 'user' ? 'active' : ''}`}
         onClick={() => setActivePage('user')}
       >
-      
+
         <span className="nav-text">用户中心</span>
       </button>
     </li>
-    {/* 移除系统健康按钮，已合并到用户中心 */}
+    {/* 新增数据图表按钮 */}
+    <li className="nav-item">
+      <button 
+        className={`nav-link ${activePage === 'charts' ? 'active' : ''}`}
+        onClick={() => setActivePage('charts')}
+      >
+        <span className="nav-text">数据图表</span>
+      </button>
+    </li>
     <li className="nav-item">
       <button 
         className={`nav-link ${activePage === 'comments' ? 'active' : ''}`}
         onClick={() => setActivePage('comments')}
       >
-        
+
         <span className="nav-text">评论</span>
       </button>
     </li>
@@ -776,7 +787,7 @@ function App() {
         onClick={handleLogout}
         title="登出系统"
       >
-        
+
         <span className="nav-text">登出</span>
       </button>
     </li>
@@ -1254,6 +1265,7 @@ function App() {
           </div>
         </div>
 
+
 {/* 用户中心页面：当前用户、用户列表和系统健康检查 */}
 <div className={`page user-center-page ${activePage === 'user' ? 'active' : ''}`}>
   <div className="user-center-grid">
@@ -1360,7 +1372,16 @@ function App() {
   </div>
 </div>
 
-       
+       {/* 数据图表页面 */}
+<div className={`page charts-page ${activePage === 'charts' ? 'active' : ''}`}>
+  <div className="charts-page-content">
+    <ChartDashboard 
+      tasks={tasks}
+      projects={projects}
+      activeProjectId={activeProjectId}
+    />
+  </div>
+</div>
 
         {/* 评论页面 */}
         <div className={`page comments-page ${activePage === 'comments' ? 'active' : ''}`}>
