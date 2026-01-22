@@ -39,7 +39,7 @@ const SimpleChartDashboard = ({ tasks = [], projects = [], activeProjectId }) =>
   return (
     <div className="charts-container">
       <div className="charts-header">
-        <h2>📊 数据图表分析</h2>
+        <h2> 数据分析</h2>
         <div className="charts-stats-summary">
           <div className="stat-item">
             <span className="stat-label">总任务数</span>
@@ -59,7 +59,7 @@ const SimpleChartDashboard = ({ tasks = [], projects = [], activeProjectId }) =>
       <div className="charts-grid">
         {/* 任务状态分布 - 使用进度条表示 */}
         <div className="chart-card">
-          <h3>📋 任务状态分布</h3>
+          <h3>任务状态分布</h3>
           <div className="chart-container simple-chart">
             {Object.entries(taskStatusStats).map(([status, count]) => {
               const percentage = totalTasks ? Math.round((count / totalTasks) * 100) : 0;
@@ -93,7 +93,7 @@ const SimpleChartDashboard = ({ tasks = [], projects = [], activeProjectId }) =>
 
         {/* 任务优先级分布 - 使用圆形进度图 */}
         <div className="chart-card">
-          <h3>🎯 任务优先级分布</h3>
+          <h3> 任务优先级分布</h3>
           <div className="chart-container simple-chart">
             <div className="priority-circles">
               {Object.entries(taskPriorityStats).map(([priority, count]) => {
@@ -159,7 +159,7 @@ const SimpleChartDashboard = ({ tasks = [], projects = [], activeProjectId }) =>
 
         {/* 数据洞察 */}
         <div className="chart-card">
-          <h3>💡 数据洞察</h3>
+          <h3> 数据洞察</h3>
           <div className="chart-container simple-chart">
             <div className="insights-list">
               <div className="insight-item">
@@ -168,10 +168,10 @@ const SimpleChartDashboard = ({ tasks = [], projects = [], activeProjectId }) =>
                   <h4>工作效率</h4>
                   <p>任务完成率: <strong>{completionRate}%</strong></p>
                   {completionRate > 70 ? 
-                    <span className="insight-good">✓ 表现优秀</span> : 
+                    <span className="insight-good">表现优秀</span> : 
                     completionRate > 40 ? 
-                    <span className="insight-ok">⚡ 有待提升</span> : 
-                    <span className="insight-warning">⚠️ 需要关注</span>
+                    <span className="insight-ok"> 有待提升</span> : 
+                    <span className="insight-warning">需要关注</span>
                   }
                 </div>
               </div>
@@ -182,8 +182,8 @@ const SimpleChartDashboard = ({ tasks = [], projects = [], activeProjectId }) =>
                   <h4>优先级分析</h4>
                   <p>高优先级任务: <strong>{taskPriorityStats.high || 0}个</strong></p>
                   {(taskPriorityStats.high || 0) > 5 ? 
-                    <span className="insight-warning">⚠️ 高优先级任务较多</span> : 
-                    <span className="insight-good">✓ 优先级分布合理</span>
+                    <span className="insight-warning">高优先级任务较多</span> : 
+                    <span className="insight-good">优先级分布合理</span>
                   }
                 </div>
               </div>
@@ -194,8 +194,8 @@ const SimpleChartDashboard = ({ tasks = [], projects = [], activeProjectId }) =>
                   <h4>团队协作</h4>
                   <p>活跃项目: <strong>{projects.length}个</strong></p>
                   {projects.length > 3 ? 
-                    <span className="insight-good">✓ 项目丰富</span> : 
-                    <span className="insight-info">💡 可创建更多项目</span>
+                    <span className="insight-good">项目丰富</span> : 
+                    <span className="insight-info"> 可创建更多项目</span>
                   }
                 </div>
               </div>
