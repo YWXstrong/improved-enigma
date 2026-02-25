@@ -396,7 +396,7 @@
 
 .image-option:hover {
   transform: scale(1.05);
-  border-color: #667eea;
+  border-color: #000000;
 }
 
 .image-option img {
@@ -711,7 +711,7 @@
 }
 
 .create-project-btn:hover {
-  background: #5a6fd8;
+  background: #000000;
 }
 
 .create-project-btn span {
@@ -800,7 +800,7 @@
 .project-avatar {
   width: 50px; /* 头像宽度 - 可调整 */
   height: 50px; /* 头像高度 - 可调整 */
-  background: linear-gradient(135deg, #000000 0%, #764ba2 100%); /* 渐变背景 */
+  background: linear-gradient(135deg, #000000 0%, #000000 100%); /* 渐变背景 */
   color: white;
   border-radius: 50%; /* 圆形 */
   display: flex;
