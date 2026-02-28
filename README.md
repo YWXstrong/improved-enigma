@@ -42,10 +42,12 @@
 |开发语言|JavaScript|ES6+|生态成熟，社区活跃|
 |框架|React|18.x|组件化开发，性能优秀|
 |HTTP客户端|Axios|1.x|Promise-based，易于使用|
-|构建工具|Create React App|5.0+|零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动|
-|包管理|npm|9.x+|Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理|
+|构建工具|Create React App|5.0+|零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动|
+|包管理|npm|9.x+|Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理|
 
-#### 开发工具链
+
+#### 开发工具链![Uploading 登入界面.png…]()
+
 
 |工具|版本|用途|配置状态|
 |---|---|---|---|
@@ -72,7 +74,7 @@ text   文本
 team-collaboration-frontend/
 ├── public/                # 公共静态文件
 ├── src/
-│   ├── components/         # React 组件│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React
+│   ├── components/         # React 组件│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React│├──组件 /         # 反应组件│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #反应│├──组件/ #│├──components/ # React
 │   │   ├── ProjectForm.js  # 项目表单组件
 │   │   ├── TaskForm.js     # 任务表单组件
 │   │   ├── ChartDashboard.js # 图表仪表板组件
@@ -161,13 +163,13 @@ team-collaboration-backend/
 ### 5.6 其他功能
 响应式设计：使用 CSS 媒体查询适配移动端和桌面端。
 
-拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。
+拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。
 
 # 6. 安装与部署指南
 ### 6.1 环境要求
-Node.js 16+ 和 npm
+Node.js 16+ 和 npm   Node.js 16  和 npm
 
-Python 3.8+
+Python 3.8+   Python 3.8
 
 Git（可选，用于克隆仓库）
 
