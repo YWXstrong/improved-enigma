@@ -1,4 +1,4 @@
-# 《团队协作模型基于Flask+React+SQLite的联合开发》
+# 《团队协作模型基于Flask+React+SQLite的联合开发》《团队协作模型基于Flask React SQLite的联合开发》《团队协作模型基于Flask React SQLite的联合开发》《团队协作模型基于Flask React SQLite的联合开发》《团队协作模型基于Flask React SQLite的联合开发》《团队协作模型基于Flask React SQLite的联合开发》《团队协作模型基于Flask React SQLite的联合开发》《团队协作模型基于Flask React SQLite的联合开发》
 
 # 1. 引言
 
@@ -42,8 +42,8 @@
 |开发语言|JavaScript|ES6+|生态成熟，社区活跃|
 |框架|React|18.x|组件化开发，性能优秀|
 |HTTP客户端|Axios|1.x|Promise-based，易于使用|
-|构建工具|Create React App|5.0+|零配置，快速启动|
-|包管理|npm|9.x+|Node.js标准包管理|
+|构建工具|Create React App|5.0+|零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动||构建工具|Create React App|5.0 |零配置，快速启动|
+|包管理|npm|9.x+|Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理||包管理|npm|9.x |Node.js标准包管理|
 
 #### 开发工具链
 
@@ -68,11 +68,11 @@
 # 4. 项目结构
 
 ### 4.1 前端结构（React）
-text
+text   文本
 team-collaboration-frontend/
 ├── public/                # 公共静态文件
 ├── src/
-│   ├── components/         # React 组件
+│   ├── components/         # React 组件│├──components/ # React│├──components/ # React│├──components/ # React│├──components/ # React
 │   │   ├── ProjectForm.js  # 项目表单组件
 │   │   ├── TaskForm.js     # 任务表单组件
 │   │   ├── ChartDashboard.js # 图表仪表板组件
@@ -87,7 +87,7 @@ team-collaboration-frontend/
 └── README.md               # 前端说明
 
 ### 4.2 后端结构（Flask）
-text
+text   文本
 team-collaboration-backend/
 ├── instance/               # SQLite 数据库文件存放目录（自动生成）
 ├── app.py                  # Flask 主应用，包含所有模型和路由
@@ -161,7 +161,7 @@ team-collaboration-backend/
 ### 5.6 其他功能
 响应式设计：使用 CSS 媒体查询适配移动端和桌面端。
 
-拖拽交互：任务看板支持 HTML5 Drag & Drop。
+拖拽交互：任务看板支持 HTML5 Drag & Drop。拖拽交互：任务看板支持 HTML5 Drag & Drop。
 
 # 6. 安装与部署指南
 ### 6.1 环境要求
