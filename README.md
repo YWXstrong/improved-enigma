@@ -436,6 +436,6 @@ git commit -m "docs: 更新数据库设计文档"
 MIT License
 
 ## 12. 联系方式
-- 项目仓库：https://github.com/your-username/team-collaboration-platform
-- 问题反馈：https://github.com/your-username/team-collaboration-platform/issues
+- 项目仓库：https://github.com/ YWXstrong/team-collaboration-platform
+- 问题反馈：https://github.com/ YWXstrong/team-collaboration-platform/issues
 - 项目演示：https://www.bilibili.com/video/BV1xZAhzREF3/?share_source=copy_web&vd_source=ceaf6abe8833277a67532e1d8cf02e75
